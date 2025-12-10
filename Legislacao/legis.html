@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Legislação do AM - FGV ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Animação do Modal */
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Scrollbar personalizada Esmeralda */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #ecfdf5;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #10b981;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-100 text-slate-800 min-h-screen flex flex-col overflow-hidden"
+  >
+    <header class="bg-emerald-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <a
+            href="../index.html"
+            class="opacity-80 hover:opacity-100 transition"
+            ><i class="fa-solid fa-arrow-left"></i
+          ></a>
+          <h1 class="font-bold text-lg">
+            <i class="fa-solid fa-scale-balanced mr-2"></i>Legislação AM
+          </h1>
+        </div>
+        <div
+          class="text-xs font-bold bg-emerald-800 px-3 py-1 rounded-full border border-emerald-500 shadow-inner"
+        >
+          <span id="score-display">Pontos: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 w-full relative overflow-y-auto"
+    >
+      <div
+        id="quiz-card"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-full"
+      >
+        <div class="w-full bg-slate-100 h-1.5">
+          <div
+            id="progress-bar"
+            class="bg-emerald-500 h-1.5 transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="q-category"
+              class="bg-emerald-50 text-emerald-700 text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-emerald-100"
+            >
+              Categoria
+            </span>
+            <span id="q-count" class="text-xs font-bold text-slate-400">
+              1/20
+            </span>
+          </div>
+
+          <h2
+            id="q-text"
+            class="text-lg md:text-xl font-semibold text-slate-800 mb-6 leading-relaxed"
+          >
+            ...
+          </h2>
+
+          <div id="options-container" class="space-y-3 pb-2"></div>
+        </div>
+      </div>
+
+      <div
+        id="result-screen"
+        class="hidden w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center modal-enter"
+      >
+        <div
+          class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner"
+        >
+          <i class="fa-solid fa-gavel"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">
+          Lei na Ponta da Língua!
+        </h2>
+        <p class="text-slate-500 mb-6">Resultado Final:</p>
+
+        <div
+          class="text-5xl font-black text-emerald-600 mb-2 tracking-tighter"
+          id="final-score-big"
+        >
+          0
+        </div>
+        <div
+          class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8"
+        >
+          Pontos Totais
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg transform active:scale-95"
+        >
+          <i class="fa-solid fa-rotate-right mr-2"></i> Refazer Quiz
+        </button>
+      </div>
+    </main>
+
+    <div
+      id="feedback-modal"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-6 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-enter transform transition-all scale-100"
+      >
+        <div
+          id="modal-header"
+          class="p-6 text-center transition-colors duration-300"
+        >
+          <div
+            id="modal-icon"
+            class="text-5xl mb-2 drop-shadow-sm scale-110 transform transition-transform duration-500"
+          ></div>
+          <h3 id="modal-title" class="text-xl font-bold text-white mt-2"></h3>
+        </div>
+
+        <div class="p-6 text-center">
+          <div
+            id="modal-message"
+            class="text-slate-600 mb-6 text-sm font-medium leading-relaxed text-left bg-slate-50 p-3 rounded-lg border border-slate-100"
+          ></div>
+
+          <div class="flex flex-col gap-3">
+            <button
+              id="btn-retry"
+              class="hidden w-full py-3.5 px-4 rounded-xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition focus:outline-none"
+            >
+              <i class="fa-solid fa-rotate-left mr-2"></i> Tentar Novamente
+            </button>
+            <button
+              id="btn-next"
+              class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 focus:outline-none"
+            >
+              Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE QUESTÕES - LEGISLAÇÃO AM (ESTATUTO E REGIMENTO) ===
+      const questions = [
+        // BLOCO 1: ESTATUTO DOS SERVIDORES (LEI 1.762/86)
+        {
+          id: 1,
+          category: "Estatuto - Provimento",
+          q: "Segundo a Lei nº 1.762/1986, a investidura em cargo público ocorre com a:",
+          options: [
+            "Nomeação.",
+            "Posse.",
+            "Homologação do concurso.",
+            "Entrada em exercício.",
+            "Aprovação no estágio probatório.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Investidura = Posse:</strong><br>A nomeação é apenas o chamado. O vínculo jurídico se forma na assinatura do termo de POSSE. O exercício é o início do trabalho.",
+        },
+        {
+          id: 2,
+          category: "Estatuto - Prazos",
+          q: "Após a nomeação, o servidor tem o prazo de ____ dias para tomar posse, podendo ser prorrogado por igual período.",
+          options: ["15 dias.", "30 dias.", "10 dias.", "20 dias.", "60 dias."],
+          correct: 1,
+          explanation:
+            "<strong>Prazos do Estatuto AM:</strong><br>Posse: 30 dias (prorrogáveis).<br>Exercício: 30 dias após a posse.<br>O não cumprimento gera a 'torna sem efeito' da nomeação.",
+        },
+        {
+          id: 3,
+          category: "Estatuto - Vacância",
+          q: "A forma de vacância que ocorre quando o servidor estável retorna ao cargo anteriormente ocupado, em decorrência de inabilitação em estágio probatório de outro cargo, é a:",
+          options: [
+            "Reversão.",
+            "Aproveitamento.",
+            "Recondução.",
+            "Readaptação.",
+            "Reintegração.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Conceitos Chave:</strong><br>• Recondução: Volta ao cargo anterior (falha no probatório ou reintegração do anterior).<br>• Reversão: Volta do aposentado.<br>• Reintegração: Volta do demitido injustamente.",
+        },
+        {
+          id: 4,
+          category: "Estatuto - Disciplinar",
+          q: "A pena de DEMISSÃO será aplicada nos casos de, EXCETO:",
+          options: [
+            "Abandono de cargo.",
+            "Inassiduidade habitual.",
+            "Improbidade administrativa.",
+            "Insubordinação grave em serviço.",
+            "Negligência leve no cumprimento das tarefas.",
+          ],
+          correct: 4,
+          explanation:
+            "<strong>Penalidades:</strong><br>Negligência ou faltas leves são punidas com Advertência ou Suspensão. A demissão é a penalidade capital para infrações graves.",
+        },
+        {
+          id: 5,
+          category: "Estatuto - Licenças",
+          q: "A licença para tratar de interesses particulares poderá ser concedida ao servidor estável, sem remuneração, pelo prazo de até:",
+          options: ["1 ano.", "2 anos.", "3 anos.", "4 anos.", "5 anos."],
+          correct: 1,
+          explanation:
+            "<strong>Interesse Particular (LIP):</strong><br>No Amazonas, a LIP é de até 2 anos, consecutivos ou não. O servidor não recebe salário e o tempo não conta para aposentadoria.",
+        },
+        {
+          id: 6,
+          category: "Estatuto - Deveres",
+          q: "É proibido ao servidor público do Estado do Amazonas:",
+          options: [
+            "Participar de gerência ou administração de empresa privada e de sociedade civil.",
+            "Ser acionista ou cotista de empresa privada.",
+            "Exercer o direito de greve nos termos da lei.",
+            "Representar contra ilegalidade ou abuso de poder.",
+            "Participar de conselhos fiscais.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Proibições Comerciais:</strong><br>O servidor não pode GERENCIAR ou ADMINISTRAR empresas. Ele pode apenas ser acionista, cotista ou comanditário (investidor).",
+        },
+        {
+          id: 7,
+          category: "Estatuto - Remoção",
+          q: "A remoção de servidor, a pedido, para outra localidade, independentemente do interesse da administração, será concedida:",
+          options: [
+            "Quando completar 5 anos de serviço.",
+            "Para acompanhar cônjuge ou companheiro, também servidor público, removido de ofício.",
+            "Apenas por permuta.",
+            "Sempre que houver vaga.",
+            "Após aprovação em concurso interno.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Proteção à Família:</strong><br>A remoção é direito subjetivo (obrigatória) quando é para acompanhar cônjuge servidor que foi deslocado no interesse da administração.",
+        },
+        {
+          id: 8,
+          category: "Estatuto - Vencimentos",
+          q: "A ajuda de custo destina-se a compensar as despesas de instalação do servidor que, no interesse do serviço, passar a ter exercício em nova sede, com mudança de domicílio. Essa ajuda NÃO poderá exceder a:",
+          options: [
+            "1 mês de remuneração.",
+            "2 meses de remuneração.",
+            "3 meses de remuneração.",
+            "50% da remuneração.",
+            "1 salário mínimo.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Ajuda de Custo:</strong><br>Limite máximo de 3 meses de remuneração. É uma indenização, não incorpora ao salário.",
+        },
+
+        // BLOCO 2: REGIMENTO INTERNO ALEAM (RES. 469/2010)
+        {
+          id: 9,
+          category: "Regimento - Mesa",
+          q: "A Mesa Diretora da ALEAM é eleita para um mandato de:",
+          options: [
+            "1 ano, permitida a reeleição.",
+            "2 anos, permitida a reeleição.",
+            "2 anos, vedada a reeleição para o mesmo cargo.",
+            "4 anos, correspondente à legislatura.",
+            "1 ano, vedada a reeleição.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Mandato da Mesa:</strong><br>O mandato é de 2 anos (biênio). A reeleição para o mesmo cargo dentro da mesma legislatura passou a ser permitida após alterações recentes nas normas estaduais/STF.",
+        },
+        {
+          id: 10,
+          category: "Regimento - Sessões",
+          q: "As sessões ordinárias da ALEAM realizam-se, regimentalmente:",
+          options: [
+            "Às terças, quartas e quintas-feiras.",
+            "De segunda a sexta-feira.",
+            "Apenas às quartas-feiras.",
+            "Às segundas, quartas e sextas.",
+            "Diariamente, exceto feriados.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Rotina Legislativa:</strong><br>As sessões ordinárias (deliberativas) ocorrem preferencialmente terças, quartas e quintas. Segundas e sextas costumam ser para sessões especiais ou comissões.",
+        },
+        {
+          id: 11,
+          category: "Regimento - Comissões",
+          q: "Qual comissão permanente é responsável por analisar a admissibilidade (constitucionalidade) de todos os projetos de lei antes de irem ao Plenário?",
+          options: [
+            "Comissão de Assuntos Econômicos (CAE).",
+            "Comissão de Constituição, Justiça e Redação (CCJR).",
+            "Comissão de Ética.",
+            "Comissão de Finanças Públicas.",
+            "Comissão de Educação.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>O Filtro:</strong><br>A CCJR é a comissão mais importante. Se ela der parecer pela inconstitucionalidade, o projeto é arquivado (salvo recurso ao Plenário).",
+        },
+        {
+          id: 12,
+          category: "Regimento - Processo",
+          q: "A proposta de emenda à Constituição Estadual (PEC) deve ser aprovada por quórum de:",
+          options: [
+            "Maioria Simples.",
+            "Maioria Absoluta.",
+            "3/5 dos votos, em dois turnos.",
+            "2/3 dos votos, em turno único.",
+            "Unanimidade.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Quórum Qualificado:</strong><br>Alterar a Constituição exige rigidez: 3/5 dos membros (15 deputados, já que são 24 no total), em dois turnos de votação.",
+        },
+        {
+          id: 13,
+          category: "Regimento - Deputados",
+          q: "Perderá o mandato o Deputado que deixar de comparecer, em cada sessão legislativa, à terça parte das sessões ordinárias, salvo:",
+          options: [
+            "Licença ou missão autorizada.",
+            "Se justificar por escrito em 48h.",
+            "Se for líder de partido.",
+            "Se estiver em campanha eleitoral.",
+            "Nenhuma exceção é permitida.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Faltas:</strong><br>A assiduidade é obrigatória. Faltar a mais de 1/3 das sessões sem licença ou missão oficial acarreta a perda do mandato.",
+        },
+        {
+          id: 14,
+          category: "Regimento - Pauta",
+          q: "O 'Pequeno Expediente' das sessões da ALEAM destina-se a:",
+          options: [
+            "Votação da Ordem do Dia.",
+            "Discursos de até 5 minutos sobre assuntos diversos.",
+            "Discursos de 15 minutos para lideranças.",
+            "Leitura da Bíblia apenas.",
+            "Encerramento da sessão.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Estrutura da Sessão:</strong><br>• Pequeno Expediente: Discursos curtos (temas livres).<br>• Grande Expediente: Discursos longos.<br>• Ordem do Dia: Votação de projetos.",
+        },
+        {
+          id: 15,
+          category: "Regimento - Decoro",
+          q: "O uso de expressões injuriosas contra outro parlamentar em plenário sujeita o Deputado à penalidade de:",
+          options: [
+            "Prisão em flagrante.",
+            "Advertência verbal ou escrita.",
+            "Cassação imediata.",
+            "Multa pecuniária.",
+            "Suspensão do mandato.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Censura e Advertência:</strong><br>Ofensas verbais leves ou calor dos debates geram advertência. A cassação é para quebra de decoro grave (corrupção, crimes).",
+        },
+        {
+          id: 16,
+          category: "Regimento - Urgência",
+          q: "Quando um projeto tramita em Regime de Urgência, ele:",
+          options: [
+            "É aprovado automaticamente.",
+            "Dispensa a publicação no Diário Oficial.",
+            "Tem prazos reduzidos pela metade e preferência na pauta.",
+            "Não precisa passar pelas comissões.",
+            "Só pode ser votado de madrugada.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Urgência:</strong><br>Não dispensa formalidades essenciais (comissões), mas encurta os prazos e 'fura a fila' da Ordem do Dia.",
+        },
+        {
+          id: 17,
+          category: "Regimento - Liderança",
+          q: "O Colégio de Líderes é um órgão consultivo composto pelos líderes dos partidos e blocos. O voto do líder no colégio tem peso:",
+          options: [
+            "Igual para todos (1 voto).",
+            "Proporcional ao número de deputados liderados.",
+            "Duplo para o líder do governo.",
+            "Decisivo apenas em caso de empate.",
+            "Nulo, pois é apenas consultivo.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Poder de Voto:</strong><br>No Colégio de Líderes, quem tem a maior bancada tem mais poder. O voto é ponderado pelo tamanho da representação (voto de liderança).",
+        },
+        {
+          id: 18,
+          category: "Regimento - CPI",
+          q: "Para a criação de uma Comissão Parlamentar de Inquérito (CPI) na ALEAM, é necessário o requerimento de, no mínimo:",
+          options: [
+            "1/3 dos membros da Assembleia.",
+            "Maioria absoluta dos membros.",
+            "2/3 dos membros.",
+            "Um único deputado.",
+            "Assinatura do Presidente.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Direito da Minoria:</strong><br>A CPI é um instrumento da minoria. Basta 1/3 das assinaturas (8 deputados) para instalar, não precisa de aprovação em plenário.",
+        },
+        {
+          id: 19,
+          category: "Estatuto - Aposentadoria",
+          q: "A aposentadoria compulsória do servidor público estadual ocorre aos:",
+          options: ["70 anos.", "75 anos.", "65 anos.", "60 anos.", "80 anos."],
+          correct: 1,
+          explanation:
+            "<strong>Regra Atual (PEC da Bengala):</strong><br>Após a LC 152/2015, a compulsória passou para 75 anos para todos os servidores efetivos da União, Estados e Municípios.",
+        },
+        {
+          id: 20,
+          category: "Estatuto - Acumulação",
+          q: "É permitida a acumulação remunerada de cargos públicos APENAS nos seguintes casos, desde que haja compatibilidade de horários:",
+          options: [
+            "Dois cargos de advogado.",
+            "Dois cargos de professor; um de professor com outro técnico/científico; dois da saúde.",
+            "Três cargos de professor, se em turnos diferentes.",
+            "Qualquer cargo, desde que não ultrapasse 60h.",
+            "Um cargo administrativo e um cargo de confiança.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Exceções Constitucionais:</strong><br>A regra é não acumular. As exceções são taxativas: 2 de professor, 1 prof + 1 técnico, ou 2 privativos de saúde.",
+        },
+      ];
+
+      // === VARIÁVEIS DE CONTROLE ===
+      let currentIndex = 0;
+      let score = 0;
+      let attempts = 0;
+
+      // === UI ELEMENTS ===
+      const ui = {
+        card: document.getElementById("quiz-card"),
+        resultScreen: document.getElementById("result-screen"),
+        qCategory: document.getElementById("q-category"),
+        qCount: document.getElementById("q-count"),
+        qText: document.getElementById("q-text"),
+        optsContainer: document.getElementById("options-container"),
+        progressBar: document.getElementById("progress-bar"),
+        scoreDisplay: document.getElementById("score-display"),
+        finalScore: document.getElementById("final-score-big"),
+        modal: document.getElementById("feedback-modal"),
+        modalHeader: document.getElementById("modal-header"),
+        modalIcon: document.getElementById("modal-icon"),
+        modalTitle: document.getElementById("modal-title"),
+        modalMsg: document.getElementById("modal-message"),
+        btnRetry: document.getElementById("btn-retry"),
+        btnNext: document.getElementById("btn-next"),
+      };
+
+      function init() {
+        currentIndex = 0;
+        score = 0;
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const q = questions[currentIndex];
+        attempts = 0;
+        ui.qCategory.innerText = q.category;
+        ui.qCount.innerText = `${currentIndex + 1}/${questions.length}`;
+        ui.qText.innerHTML = q.q; // Permite HTML para negrito
+        ui.scoreDisplay.innerText = `Pontos: ${score}`;
+
+        const pct = (currentIndex / questions.length) * 100;
+        ui.progressBar.style.width = `${pct}%`;
+
+        ui.optsContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all duration-200 flex items-center group no-select`;
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-white text-slate-500 font-bold flex items-center justify-center text-xs mr-4 border border-slate-200 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-colors">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswer(idx);
+          ui.optsContainer.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedIndex) {
+        const q = questions[currentIndex];
+        const isCorrect = selectedIndex === q.correct;
+
+        ui.modal.classList.remove("hidden");
+
+        if (isCorrect) {
+          if (attempts === 0) score += 5; // Peso menor
+          configureModal("success");
+          ui.modalTitle.innerText = "Dentro da Lei!";
+          ui.modalMsg.innerHTML = `<span class="text-emerald-600 font-bold">Artigo Correto:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.add("hidden");
+        } else {
+          attempts++;
+          configureModal("error");
+          ui.modalTitle.innerText = "Incorreto";
+          ui.modalMsg.innerHTML = `<span class="text-rose-600 font-bold">Correção:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.remove("hidden");
+        }
+      }
+
+      function configureModal(type) {
+        if (type === "success") {
+          ui.modalHeader.className = "p-6 text-center bg-emerald-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-check text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition";
+        } else {
+          ui.modalHeader.className = "p-6 text-center bg-rose-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-xmark text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-lg transition";
+        }
+        ui.btnNext.focus();
+      }
+
+      ui.btnRetry.onclick = () => ui.modal.classList.add("hidden");
+
+      ui.btnNext.onclick = () => {
+        ui.modal.classList.add("hidden");
+        currentIndex++;
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
+      };
+
+      function showResults() {
+        ui.card.classList.add("hidden");
+        ui.resultScreen.classList.remove("hidden");
+        ui.finalScore.innerText = score;
+        ui.scoreDisplay.innerText = `Final: ${score}`;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

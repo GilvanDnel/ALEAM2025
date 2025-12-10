@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Língua Portuguesa - FGV ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Animação do Modal */
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* Utilitários */
+      .hidden {
+        display: none !important;
+      }
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Scrollbar personalizada */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f0fdfa;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #2dd4bf;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-100 text-slate-800 min-h-screen flex flex-col overflow-hidden"
+  >
+    <header class="bg-teal-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <a
+            href="../index.html"
+            class="opacity-80 hover:opacity-100 transition"
+            ><i class="fa-solid fa-arrow-left"></i
+          ></a>
+          <h1 class="font-bold text-lg">
+            <i class="fa-solid fa-font mr-2"></i>Português FGV
+          </h1>
+        </div>
+        <div
+          class="text-xs font-bold bg-teal-800 px-3 py-1 rounded-full border border-teal-500 shadow-inner"
+        >
+          <span id="score-display">Pontos: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 w-full relative overflow-y-auto"
+    >
+      <div
+        id="quiz-card"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-full"
+      >
+        <div class="w-full bg-slate-100 h-1.5">
+          <div
+            id="progress-bar"
+            class="bg-teal-500 h-1.5 transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="q-category"
+              class="bg-teal-50 text-teal-700 text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-teal-100"
+            >
+              Categoria
+            </span>
+            <span id="q-count" class="text-xs font-bold text-slate-400">
+              1/21
+            </span>
+          </div>
+
+          <h2
+            id="q-text"
+            class="text-lg md:text-xl font-semibold text-slate-800 mb-6 leading-relaxed"
+          >
+            ...
+          </h2>
+
+          <div id="options-container" class="space-y-3 pb-2"></div>
+        </div>
+      </div>
+
+      <div
+        id="result-screen"
+        class="hidden w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center modal-enter"
+      >
+        <div
+          class="w-20 h-20 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner"
+        >
+          <i class="fa-solid fa-trophy"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">
+          Módulo Concluído!
+        </h2>
+        <p class="text-slate-500 mb-6">Seu desempenho em Português (FGV):</p>
+
+        <div
+          class="text-5xl font-black text-teal-600 mb-2 tracking-tighter"
+          id="final-score-big"
+        >
+          0
+        </div>
+        <div
+          class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8"
+        >
+          Pontos Totais
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg transform active:scale-95"
+        >
+          <i class="fa-solid fa-rotate-right mr-2"></i> Refazer Quiz
+        </button>
+      </div>
+    </main>
+
+    <div
+      id="feedback-modal"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-6 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-enter transform transition-all scale-100"
+      >
+        <div
+          id="modal-header"
+          class="p-6 text-center transition-colors duration-300"
+        >
+          <div
+            id="modal-icon"
+            class="text-5xl mb-2 drop-shadow-sm scale-110 transform transition-transform duration-500"
+          ></div>
+          <h3 id="modal-title" class="text-xl font-bold text-white mt-2"></h3>
+        </div>
+
+        <div class="p-6 text-center">
+          <div
+            id="modal-message"
+            class="text-slate-600 mb-6 text-sm font-medium leading-relaxed text-left bg-slate-50 p-3 rounded-lg border border-slate-100"
+          ></div>
+
+          <div class="flex flex-col gap-3">
+            <button
+              id="btn-retry"
+              class="hidden w-full py-3.5 px-4 rounded-xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition focus:outline-none"
+            >
+              <i class="fa-solid fa-rotate-left mr-2"></i> Tentar Novamente
+            </button>
+            <button
+              id="btn-next"
+              class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 focus:outline-none"
+            >
+              Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE QUESTÕES (PORTUGUÊS FGV - MÉTODO PREDITIVO) ===
+      const questions = [
+        {
+          id: 1,
+          category: "Reescrita (Nominalização)",
+          q: "Assinale a opção que apresenta a frase reescrita de forma a eliminar os verbos, mantendo o sentido original: <br><em>'Quem estuda muito, acaba passando.'</em>",
+          options: [
+            "O estudo intenso leva à aprovação.",
+            "Aquele que estuda, passa.",
+            "Estudando muito, a aprovação vem.",
+            "Quem tem estudo, tem aprovação.",
+            "A aprovação é de quem estuda.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Padrão FGV:</strong> A banca adora pedir a 'nominalização' (trocar verbos por substantivos).<br>A única opção que elimina 'estuda' e 'passando' transformando em 'estudo' e 'aprovação' é a letra A.",
+        },
+        {
+          id: 2,
+          category: "Ambiguidade",
+          q: "<em>'O gerente disse ao funcionário que ele seria promovido.'</em><br>O termo 'ele' gera ambiguidade. Para desfazer o duplo sentido, garantindo que o <strong>funcionário</strong> será promovido, deve-se reescrever:",
+          options: [
+            "O gerente disse ao funcionário que aquele seria promovido.",
+            "O gerente disse ao funcionário que este seria promovido.",
+            "O gerente disse ao funcionário que ele mesmo seria promovido.",
+            "O gerente disse ao funcionário que o mesmo seria promovido.",
+            "O gerente disse ao funcionário que seu cargo seria promovido.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Regra de Ouro:</strong><br>• <strong>Este</strong>: Refere-se ao termo mais próximo (funcionário).<br>• <strong>Aquele</strong>: Refere-se ao termo mais distante (gerente).<br>Gabarito: B.",
+        },
+        {
+          id: 3,
+          category: "Conectivos",
+          q: "<em>'O projeto é bom, <strong>conquanto</strong> seja caro.'</em><br>O termo destacado pode ser substituído, sem alteração de sentido, por:",
+          options: [
+            "Portanto.",
+            "Porquanto.",
+            "Embora.",
+            "Todavia.",
+            "Contudo.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Vocabulário FGV:</strong><br>'Conquanto' é uma conjunção <strong>concessiva</strong>, sinônimo de 'embora', 'ainda que'.<br>Cuidado: 'Porquanto' é causal (porque) e 'Portanto' é conclusiva.",
+        },
+        {
+          id: 4,
+          category: "Tipologia Textual",
+          q: "<em>'Para tomar posse, apresente os documentos, assine o termo e retire seu crachá.'</em><br>Este texto é classificado predominantemente como:",
+          options: [
+            "Narrativo.",
+            "Descritivo.",
+            "Injuntivo.",
+            "Dissertativo.",
+            "Expositivo.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Texto Injuntivo:</strong> É aquele que dá ordens, instruções ou orientações (comum em editais e manuais). A marca principal são os verbos no imperativo (apresente, assine, retire).",
+        },
+        {
+          id: 5,
+          category: "Crase",
+          q: "O uso do acento grave indicativo de crase é <strong>obrigatório</strong> na opção:",
+          options: [
+            "Encaminhei o ofício a Vossa Excelência.",
+            "Estou disposto a ajudar.",
+            "O documento foi enviado a ela.",
+            "Saímos as pressas do plenário.",
+            "Referia-se a toda população.",
+          ],
+          correct: 3,
+          explanation:
+            "<strong>Locuções Femininas:</strong><br>A) Pronome de tratamento (sem crase).<br>B) Antes de verbo (sem crase).<br>C) Pronome pessoal (sem crase).<br>D) <strong>'Às pressas'</strong> é locução adverbial feminina de modo (crase obrigatória).",
+        },
+        {
+          id: 6,
+          category: "Concordância Verbal",
+          q: "Assinale a frase gramaticalmente <strong>correta</strong>:",
+          options: [
+            "Fazem dois anos que trabalho na ALEAM.",
+            "Houveram muitos candidatos inscritos.",
+            "Deve haver muitas vagas no concurso.",
+            "Aluga-se apartamentos no centro.",
+            "Seguem anexo os documentos.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Verbos Impessoais:</strong><br>A) Fazer (tempo) = Singular (Faz dois anos).<br>B) Haver (existir) = Singular (Houve muitos).<br>C) Locução com Haver impessoal = Auxiliar no singular (Deve haver). <strong>Correta!</strong><br>D) 'Apartamentos' é sujeito = Alugam-se.<br>E) 'Documentos' é sujeito = Seguem anexos.",
+        },
+        {
+          id: 7,
+          category: "Vozes Verbais",
+          q: "Transpondo a frase <em>'A Comissão aprovou a emenda'</em> para a voz passiva analítica, a forma correta é:",
+          options: [
+            "A emenda aprovou a Comissão.",
+            "A emenda foi aprovada pela Comissão.",
+            "A emenda se aprovou pela Comissão.",
+            "A Comissão tinha aprovado a emenda.",
+            "A emenda seria aprovada pela Comissão.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Voz Passiva:</strong><br>Sujeito Paciente (A emenda) + Verbo Ser (foi) + Particípio (aprovada) + Agente da Passiva (pela Comissão).",
+        },
+        {
+          id: 8,
+          category: "Semântica (Preposição)",
+          q: "Em <em>'Morreu <strong>de</strong> fome'</em> e <em>'Casa <strong>de</strong> madeira'</em>, a preposição 'de' indica, respectivamente:",
+          options: [
+            "Causa e Posse.",
+            "Modo e Matéria.",
+            "Causa e Matéria.",
+            "Origem e Posse.",
+            "Causa e Origem.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Valor Semântico:</strong><br>1. Morreu <em>por causa</em> da fome (Causa).<br>2. Casa <em>feita de</em> madeira (Matéria).",
+        },
+        {
+          id: 9,
+          category: "Coesão Referencial",
+          q: "No trecho: <em>'O Amazonas é vasto. <strong>Sua</strong> biodiversidade impressiona.'</em> O pronome 'Sua' é um elemento de coesão:",
+          options: [
+            "Anafórico.",
+            "Catafórico.",
+            "Exofórico.",
+            "Deítico.",
+            "Elíptico.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Anafórico:</strong> Retoma um termo que JÁ foi citado anteriormente no texto ('Amazonas').<br>Catafórico seria se referisse a algo que viria depois.",
+        },
+        {
+          id: 10,
+          category: "Pontuação",
+          q: "Assinale a frase onde a vírgula isola um <strong>aposto explicativo</strong>:",
+          options: [
+            "Manaus, 14 de dezembro de 2025.",
+            "Amazonas, o maior estado do Brasil, é rico em água.",
+            "João, traga o relatório.",
+            "Comprou papel, caneta e lápis.",
+            "Estudou, mas não passou.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Aposto Explicativo:</strong> É o termo que explica ou detalha o substantivo anterior ('o maior estado do Brasil' explica 'Amazonas'). Deve vir sempre entre vírgulas.",
+        },
+        {
+          id: 11,
+          category: "Ortografia (Hífen)",
+          q: "Segundo o Novo Acordo, a grafia correta é:",
+          options: [
+            "Microondas, anti-inflamatório.",
+            "Micro-ondas, antiinflamatório.",
+            "Micro-ondas, anti-inflamatório.",
+            "Microondas, antiinflamatório.",
+            "Microndas, antinflamatório.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Regra dos Iguais:</strong><br>Vogais iguais se separam por hífen.<br>Micro + ondas = Micro-ondas.<br>Anti + inflamatório = Anti-inflamatório.<br>Vogais diferentes se juntam (Autoescola).",
+        },
+        {
+          id: 12,
+          category: "Reescrita (Concisão)",
+          q: "A frase <em>'Realizamos a contratação de novos funcionários'</em> torna-se mais concisa e direta se reescrita como:",
+          options: [
+            "Fizemos a contratação de funcionários novos.",
+            "Contratamos novos funcionários.",
+            "A contratação de novos funcionários foi realizada.",
+            "Procedemos com a contratação de novos funcionários.",
+            "Efetuamos a contratação de novos funcionários.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Clareza e Concisão (FGV):</strong><br>Evite locuções verbais desnecessárias ('Realizamos a contratação'). Use o verbo direto que carrega a ação: 'Contratamos'.",
+        },
+        {
+          id: 13,
+          category: "Parônimos",
+          q: "O deputado ______ o mandato ao infringir a lei. O verbo correto é:",
+          options: [
+            "Cassou (anular).",
+            "Caçou (perseguir).",
+            "Casser (inexistente).",
+            "Causou (provocar).",
+            "Casou (matrimônio).",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Cassar vs Caçar:</strong><br>• Cassar (com SS): Anular, revogar direitos políticos ou licenças.<br>• Caçar (com Ç): Perseguir animais.<br>Contexto político = Cassar.",
+        },
+        {
+          id: 14,
+          category: "Regência Verbal",
+          q: "Assinale a opção com regência <strong>incorreta</strong>:",
+          options: [
+            "Assistimos ao filme ontem.",
+            "Ele visa ao cargo de diretor.",
+            "Chegamos em Manaus cedo.",
+            "Obedecemos ao regulamento.",
+            "Esqueci o nome dele.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Verbo Chegar:</strong><br>Quem chega, chega <strong>A</strong> algum lugar, e não 'em'.<br>Correto: 'Chegamos <strong>a</strong> Manaus'.<br>A FGV cobra muito essa preposição específica.",
+        },
+        {
+          id: 15,
+          category: "Lógica (Argumentação)",
+          q: "<em>'Todos os políticos são oradores. João é político.'</em><br>A conclusão lógica necessária é:",
+          options: [
+            "João é honesto.",
+            "João é orador.",
+            "Alguns oradores são políticos.",
+            "João pode não ser orador.",
+            "Nenhuma das anteriores.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Silogismo:</strong><br>Premissa Maior: Todo A é B.<br>Premissa Menor: C é A.<br>Conclusão: C é B (João é orador).<br>A FGV mistura raciocínio lógico dentro da prova de português.",
+        },
+        {
+          id: 16,
+          category: "Adjetivos",
+          q: "Em <em>'Uma decisão <strong>judicial</strong>'</em> e <em>'Uma decisão <strong>lamentável</strong>'</em>, os adjetivos têm valor, respectivamente:",
+          options: [
+            "Subjetivo e Objetivo.",
+            "Objetivo e Subjetivo.",
+            "Objetivo e Objetivo.",
+            "Subjetivo e Subjetivo.",
+            "Relacional e Descritivo.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Valor do Adjetivo:</strong><br>• Judicial: É um fato/categoria (Objetivo). Não depende de opinião.<br>• Lamentável: É uma opinião/juízo de valor (Subjetivo).",
+        },
+        {
+          id: 17,
+          category: "Colocação Pronominal",
+          q: "Assinale a frase correta quanto à próclise (pronome antes do verbo):",
+          options: [
+            "Me disseram a verdade.",
+            "Não me disseram a verdade.",
+            "Disseram-me a verdade.",
+            "Se disser a verdade, avise.",
+            "Aquilo me disse a verdade.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Palavras Atrativas:</strong><br>A palavra negativa 'Não' atrai o pronome para antes do verbo ('Não <strong>me</strong> disseram').<br>A opção A está errada pois não se inicia frase com pronome oblíquo.",
+        },
+        {
+          id: 18,
+          category: "Paralelismo",
+          q: "Assinale a frase que respeita o paralelismo sintático:",
+          options: [
+            "Gosto de ler e de escrever.",
+            "Gosto de ler e escrita.",
+            "O edital exige diploma e que tenha experiência.",
+            "Vi o filme e gostando dele.",
+            "Ela é inteligente e estuda.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Simetria:</strong><br>Se o primeiro termo é 'de + verbo' (de ler), o segundo deve seguir a mesma estrutura 'de + verbo' (de escrever). A letra B mistura verbo com substantivo, quebrando o paralelismo.",
+        },
+        {
+          id: 19,
+          category: "Formação de Palavras",
+          q: "As palavras <em>'ilegal'</em> e <em>'felizmente'</em> são formadas, respectivamente, por:",
+          options: [
+            "Sufixação e Prefixação.",
+            "Prefixação e Sufixação.",
+            "Parassíntese e Aglutinação.",
+            "Derivação imprópria e Composição.",
+            "Hibridismo e Justaposição.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Processo de Derivação:</strong><br>• I-legal: Acréscimo de prefixo 'i' (Prefixação).<br>• Feliz-mente: Acréscimo de sufixo 'mente' (Sufixação).",
+        },
+        {
+          id: 20,
+          category: "Polissemia",
+          q: "A palavra 'ponto' é polissêmica. Assinale a opção em que ela tem sentido de 'local de parada':",
+          options: [
+            "O aluno levou um ponto na prova.",
+            "O tecido tem um ponto bonito.",
+            "Desci no ponto de ônibus.",
+            "Este é o ponto crucial da discussão.",
+            "O bife está no ponto.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Contexto:</strong><br>A FGV pede para identificar o sentido específico. 'Ponto de ônibus' refere-se a local físico de parada. As outras referem-se a nota, costura, argumento e cozimento.",
+        },
+        {
+          id: 21,
+          category: "Acentuação",
+          q: "Assinale a palavra que é acentuada pela mesma regra de 'Manaus':",
+          options: ["Baú.", "Pau.", "Caju.", "Vírus.", "Tatu."],
+          correct: 0,
+          explanation:
+            "<strong>Regra do Hiato:</strong><br>Ma-na-us (U tônico em hiato, seguido de S).<br>Ba-ú (U tônico em hiato, sozinho).<br>Caju e Tatu são oxítonas terminadas em U (não acentuam). Vírus é paroxítona.",
+        },
+      ];
+
+      // === VARIÁVEIS DE CONTROLE ===
+      let currentIndex = 0;
+      let score = 0;
+      let attempts = 0;
+
+      // === UI ELEMENTS ===
+      const ui = {
+        card: document.getElementById("quiz-card"),
+        resultScreen: document.getElementById("result-screen"),
+        qCategory: document.getElementById("q-category"),
+        qCount: document.getElementById("q-count"),
+        qText: document.getElementById("q-text"),
+        optsContainer: document.getElementById("options-container"),
+        progressBar: document.getElementById("progress-bar"),
+        scoreDisplay: document.getElementById("score-display"),
+        finalScore: document.getElementById("final-score-big"),
+        modal: document.getElementById("feedback-modal"),
+        modalHeader: document.getElementById("modal-header"),
+        modalIcon: document.getElementById("modal-icon"),
+        modalTitle: document.getElementById("modal-title"),
+        modalMsg: document.getElementById("modal-message"),
+        btnRetry: document.getElementById("btn-retry"),
+        btnNext: document.getElementById("btn-next"),
+      };
+
+      // === FUNÇÕES ===
+      function init() {
+        currentIndex = 0;
+        score = 0;
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const q = questions[currentIndex];
+        attempts = 0;
+        ui.qCategory.innerText = q.category;
+        ui.qCount.innerText = `${currentIndex + 1}/${questions.length}`;
+        ui.qText.innerHTML = q.q;
+        ui.scoreDisplay.innerText = `Pontos: ${score}`;
+
+        const pct = (currentIndex / questions.length) * 100;
+        ui.progressBar.style.width = `${pct}%`;
+
+        ui.optsContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:bg-white hover:border-teal-300 hover:shadow-md transition-all duration-200 flex items-center group no-select`;
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-white text-slate-500 font-bold flex items-center justify-center text-xs mr-4 border border-slate-200 group-hover:bg-teal-600 group-hover:text-white group-hover:border-teal-600 transition-colors">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswer(idx);
+          ui.optsContainer.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedIndex) {
+        const q = questions[currentIndex];
+        const isCorrect = selectedIndex === q.correct;
+
+        ui.modal.classList.remove("hidden");
+        if (isCorrect) {
+          if (attempts === 0) score += 20;
+          configureModal("success");
+          ui.modalTitle.innerText = "Resposta Certa!";
+          ui.modalMsg.innerHTML = `<span class="text-emerald-600 font-bold">Excelente!</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.add("hidden");
+        } else {
+          attempts++;
+          configureModal("error");
+          ui.modalTitle.innerText = "Resposta Incorreta";
+          ui.modalMsg.innerHTML = `<span class="text-rose-600 font-bold">Atenção à Regra:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.remove("hidden");
+        }
+      }
+
+      function configureModal(type) {
+        if (type === "success") {
+          ui.modalHeader.className = "p-6 text-center bg-emerald-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-check text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition";
+        } else {
+          ui.modalHeader.className = "p-6 text-center bg-rose-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-xmark text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-lg transition";
+        }
+        ui.btnNext.focus();
+      }
+
+      ui.btnRetry.onclick = () => ui.modal.classList.add("hidden");
+      ui.btnNext.onclick = () => {
+        ui.modal.classList.add("hidden");
+        currentIndex++;
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
+      };
+
+      function showResults() {
+        ui.card.classList.add("hidden");
+        ui.resultScreen.classList.remove("hidden");
+        ui.finalScore.innerText = score;
+        ui.scoreDisplay.innerText = `Final: ${score}`;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

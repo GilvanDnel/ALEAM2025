@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Informática - FGV ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Animação do Modal */
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Scrollbar personalizada Ciano */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #ecfeff;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #06b6d4;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-100 text-slate-800 min-h-screen flex flex-col overflow-hidden"
+  >
+    <header class="bg-cyan-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <a
+            href="../index.html"
+            class="opacity-80 hover:opacity-100 transition"
+            ><i class="fa-solid fa-arrow-left"></i
+          ></a>
+          <h1 class="font-bold text-lg">
+            <i class="fa-solid fa-laptop-code mr-2"></i>Informática FGV
+          </h1>
+        </div>
+        <div
+          class="text-xs font-bold bg-cyan-800 px-3 py-1 rounded-full border border-cyan-500 shadow-inner"
+        >
+          <span id="score-display">Pontos: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 w-full relative overflow-y-auto"
+    >
+      <div
+        id="quiz-card"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-full"
+      >
+        <div class="w-full bg-slate-100 h-1.5">
+          <div
+            id="progress-bar"
+            class="bg-cyan-500 h-1.5 transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="q-category"
+              class="bg-cyan-50 text-cyan-700 text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-cyan-100"
+            >
+              Categoria
+            </span>
+            <span id="q-count" class="text-xs font-bold text-slate-400">
+              1/20
+            </span>
+          </div>
+
+          <h2
+            id="q-text"
+            class="text-lg md:text-xl font-semibold text-slate-800 mb-6 leading-relaxed"
+          >
+            ...
+          </h2>
+
+          <div id="options-container" class="space-y-3 pb-2"></div>
+        </div>
+      </div>
+
+      <div
+        id="result-screen"
+        class="hidden w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center modal-enter"
+      >
+        <div
+          class="w-20 h-20 bg-cyan-100 text-cyan-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner"
+        >
+          <i class="fa-solid fa-microchip"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">
+          Módulo Finalizado!
+        </h2>
+        <p class="text-slate-500 mb-6">Desempenho Técnico:</p>
+
+        <div
+          class="text-5xl font-black text-cyan-600 mb-2 tracking-tighter"
+          id="final-score-big"
+        >
+          0
+        </div>
+        <div
+          class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8"
+        >
+          Pontos Totais
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg transform active:scale-95"
+        >
+          <i class="fa-solid fa-rotate-right mr-2"></i> Refazer Quiz
+        </button>
+      </div>
+    </main>
+
+    <div
+      id="feedback-modal"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-6 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-enter transform transition-all scale-100"
+      >
+        <div
+          id="modal-header"
+          class="p-6 text-center transition-colors duration-300"
+        >
+          <div
+            id="modal-icon"
+            class="text-5xl mb-2 drop-shadow-sm scale-110 transform transition-transform duration-500"
+          ></div>
+          <h3 id="modal-title" class="text-xl font-bold text-white mt-2"></h3>
+        </div>
+
+        <div class="p-6 text-center">
+          <div
+            id="modal-message"
+            class="text-slate-600 mb-6 text-sm font-medium leading-relaxed text-left bg-slate-50 p-3 rounded-lg border border-slate-100"
+          ></div>
+
+          <div class="flex flex-col gap-3">
+            <button
+              id="btn-retry"
+              class="hidden w-full py-3.5 px-4 rounded-xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition focus:outline-none"
+            >
+              <i class="fa-solid fa-rotate-left mr-2"></i> Tentar Novamente
+            </button>
+            <button
+              id="btn-next"
+              class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 focus:outline-none"
+            >
+              Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE QUESTÕES - INFORMÁTICA (PADRÃO FGV) ===
+      const questions = [
+        // BLOCO 1: EXCEL E PLANILHAS (A FGV AMA!)
+        {
+          id: 1,
+          category: "Excel - Erros",
+          q: "No MS Excel, ao tentar dividir um número por uma célula vazia ou zero, o sistema exibe o erro:",
+          options: ["#NOME?", "#VALOR!", "#DIV/0!", "#REF!", "####"],
+          correct: 2,
+          explanation:
+            "<strong>Erro de Divisão:</strong><br>O erro <code>#DIV/0!</code> ocorre explicitamente quando há uma tentativa de divisão por zero ou célula vazia. <br><code>#NOME?</code> é erro na fórmula, <code>#VALOR!</code> é erro no tipo de dado.",
+        },
+        {
+          id: 2,
+          category: "Excel - Fórmulas",
+          q: "Considere a célula A1 = 10, A2 = 20 e A3 = 30. A fórmula <code>=MÉDIA(A1:A3; 40)</code> resultará em:",
+          options: ["20", "25", "30", "100", "Erro"],
+          correct: 1,
+          explanation:
+            "<strong>Pegadinha do Ponto e Vírgula:</strong><br>A fórmula calcula a média de A1, A2, A3 <strong>E</strong> do número 40.<br>Soma: 10 + 20 + 30 + 40 = 100.<br>Total de itens: 4.<br>Média: 100 / 4 = 25.",
+        },
+        {
+          id: 3,
+          category: "Excel - Referências",
+          q: "Ao copiar a fórmula <code>=$A$1+B1</code> da célula C1 para a célula C2, a fórmula em C2 será:",
+          options: ["=$A$1+B2", "=$A$2+B2", "=A1+B2", "=$A$1+B1", "=A2+B2"],
+          correct: 0,
+          explanation:
+            "<strong>Referência Absoluta ($):</strong><br>O cifrão ($) 'trava' a referência. $A$1 não muda nunca. B1 (relativa) muda para B2 ao descer uma linha.<br>Resultado: <code>=$A$1+B2</code>.",
+        },
+        {
+          id: 4,
+          category: "Excel - Funções",
+          q: "Qual função do Excel conta apenas as células que contêm números em um intervalo?",
+          options: [
+            "=CONT.NÚM",
+            "=CONT.VALORES",
+            "=CONT.SE",
+            "=SOMASE",
+            "=NÚM.CARACT",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Diferença Crucial:</strong><br>• <code>CONT.NÚM</code>: Conta só números.<br>• <code>CONT.VALORES</code>: Conta qualquer célula não vazia (texto ou número).",
+        },
+        {
+          id: 5,
+          category: "Excel - Interface",
+          q: "Para selecionar células não adjacentes (separadas) no Excel, deve-se clicar nelas mantendo pressionada a tecla:",
+          options: ["Shift", "Alt", "Ctrl", "Tab", "Space"],
+          correct: 2,
+          explanation:
+            "<strong>Seleção Múltipla:</strong><br>• <strong>Ctrl</strong> + Clique: Seleciona itens separados.<br>• <strong>Shift</strong> + Clique: Seleciona um intervalo contínuo.",
+        },
+
+        // BLOCO 2: WINDOWS E ARQUIVOS
+        {
+          id: 6,
+          category: "Windows - Atalhos",
+          q: "No Windows 10, o atalho de teclado para bloquear a estação de trabalho imediatamente é:",
+          options: [
+            "Ctrl + L",
+            "Alt + F4",
+            "Windows + L",
+            "Ctrl + Alt + Del",
+            "Windows + D",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Bloqueio Rápido:</strong><br>A tecla <strong>Windows + L</strong> (Lock) serve para bloquear a tela instantaneamente, exigindo senha para retornar. Essencial para segurança corporativa.",
+        },
+        {
+          id: 7,
+          category: "Windows - Explorador",
+          q: "Ao excluir um arquivo pressionando <strong>Shift + Delete</strong>, o arquivo:",
+          options: [
+            "Vai para a Lixeira.",
+            "É renomeado.",
+            "É excluído permanentemente.",
+            "Vai para a pasta temporária.",
+            "É compactado.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Exclusão Definitiva:</strong><br>Shift + Delete ignora a Lixeira e apaga o arquivo permanentemente do índice do disco.",
+        },
+        {
+          id: 8,
+          category: "Extensões de Arquivo",
+          q: "Assinale a extensão que representa um arquivo executável (programa) no Windows:",
+          options: [".docx", ".pdf", ".exe", ".jpg", ".txt"],
+          correct: 2,
+          explanation:
+            "<strong>Executáveis:</strong><br>.exe (Executable) é o formato padrão de programas. As outras são documentos (.docx, .pdf, .txt) ou imagem (.jpg).",
+        },
+        {
+          id: 9,
+          category: "Windows - Recursos",
+          q: "O recurso do Windows 10 que permite visualizar todas as janelas abertas e criar áreas de trabalho virtuais é:",
+          options: [
+            "Gerenciador de Tarefas",
+            "Visão de Tarefas (Task View)",
+            "Cortana",
+            "Windows Defender",
+            "Painel de Controle",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Visão de Tarefas:</strong><br>Acessível por <code>Win + Tab</code>, mostra as janelas e permite criar múltiplos Desktops Virtuais.",
+        },
+
+        // BLOCO 3: WORD E EDITORES
+        {
+          id: 10,
+          category: "Word - Formatação",
+          q: "No MS Word, o recurso que copia a formatação de um texto (cor, fonte, tamanho) para aplicar em outro é:",
+          options: [
+            "Pincel de Formatação",
+            "Colar Especial",
+            "Realce",
+            "Estilos",
+            "WordArt",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Pincel de Formatação:</strong><br>Ícone de pincel na guia Página Inicial. Copia o estilo visual de um texto selecionado para ser 'pintado' em outro.",
+        },
+        {
+          id: 11,
+          category: "Word - Teclas",
+          q: "Qual tecla de atalho é usada para <strong>Salvar</strong> o documento no MS Word (versão em Português)?",
+          options: ["Ctrl + S", "Ctrl + B", "Ctrl + P", "Ctrl + A", "Alt + S"],
+          correct: 1,
+          explanation:
+            "<strong>Atalhos PT-BR:</strong><br>No Word em Português, Salvar é <strong>Ctrl + B</strong> (de Back-up/Borrão).<br>Ctrl + S sublinha. Em inglês seria Ctrl + S (Save).",
+        },
+        {
+          id: 12,
+          category: "Word - Exibição",
+          q: "Para visualizar caracteres não imprimíveis (como espaços, parágrafos e tabulações), usa-se o botão:",
+          options: [
+            "Mostrar/Ocultar (¶)",
+            "Zoom",
+            "Layout de Impressão",
+            "Borda",
+            "Espaçamento",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Mostrar Tudo (¶):</strong><br>O símbolo Pi (¶) revela marcas de formatação ocultas, essenciais para formatação avançada.",
+        },
+        {
+          id: 13,
+          category: "Word - Inserção",
+          q: "O recurso 'Cabeçalho e Rodapé' é editado para que a informação se repita:",
+          options: [
+            "Apenas na primeira página.",
+            "Em todas as páginas da seção/documento.",
+            "Apenas na última página.",
+            "Aleatoriamente.",
+            "Somente nas páginas pares.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Repetição:</strong><br>Por padrão, o conteúdo do Cabeçalho/Rodapé se repete em todas as páginas do documento ou da seção atual.",
+        },
+
+        // BLOCO 4: INTERNET E SEGURANÇA
+        {
+          id: 14,
+          category: "Segurança - Malware",
+          q: "O tipo de malware que 'sequestra' os dados do usuário, criptografando-os e exigindo pagamento de resgate, é o:",
+          options: ["Spyware", "Worm", "Ransomware", "Trojan", "Phishing"],
+          correct: 2,
+          explanation:
+            "<strong>Ransomware:</strong><br>Vem de 'Ransom' (Resgate). É a ameaça mais cobrada atualmente. Phishing é golpe de engenharia social (e-mail falso).",
+        },
+        {
+          id: 15,
+          category: "Navegadores",
+          q: "Em navegadores como Chrome e Edge, o atalho para reabrir a última guia fechada acidentalmente é:",
+          options: [
+            "Ctrl + T",
+            "Ctrl + N",
+            "Ctrl + Shift + T",
+            "Ctrl + H",
+            "F5",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Salva-Vidas:</strong><br>• Ctrl + T: Nova Guia.<br>• <strong>Ctrl + Shift + T</strong>: Reabre a última guia fechada.",
+        },
+        {
+          id: 16,
+          category: "Google - Busca",
+          q: "Para pesquisar no Google apenas arquivos em formato PDF sobre 'Orçamento', deve-se digitar:",
+          options: [
+            "Orçamento (pdf)",
+            "Orçamento filetype:pdf",
+            "Orçamento type:pdf",
+            "Orçamento extension:pdf",
+            "Orçamento @pdf",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Operador Filetype:</strong><br>O comando <code>filetype:</code> (ou <code>ext:</code>) filtra os resultados pelo formato do arquivo. Ex: <code>edital filetype:pdf</code>.",
+        },
+        {
+          id: 17,
+          category: "Segurança - Protocolos",
+          q: "O protocolo que garante uma conexão segura e criptografada entre o navegador e o site (indicado pelo cadeado) é:",
+          options: ["HTTP", "FTP", "HTTPS", "SMTP", "DNS"],
+          correct: 2,
+          explanation:
+            "<strong>S de Segurança:</strong><br>HTTPS (Hyper Text Transfer Protocol Secure) usa criptografia (SSL/TLS) para proteger os dados. HTTP é inseguro.",
+        },
+        {
+          id: 18,
+          category: "Correio Eletrônico",
+          q: "Ao enviar um e-mail, o campo 'Cco' (Cópia Oculta) serve para:",
+          options: [
+            "Enviar o e-mail com prioridade alta.",
+            "Enviar uma cópia visível a todos.",
+            "Esconder o destinatário dos demais receptores.",
+            "Anexar arquivos ocultos.",
+            "Criptografar a mensagem.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Cco (Bcc):</strong><br>Os endereços colocados em Cco recebem a mensagem, mas os outros destinatários (Para e Cc) não sabem disso.",
+        },
+
+        // BLOCO 5: CONCEITOS GERAIS
+        {
+          id: 19,
+          category: "Hardware",
+          q: "Qual componente é considerado a 'memória de trabalho' do computador, sendo volátil (apaga ao desligar)?",
+          options: [
+            "HD (Disco Rígido)",
+            "SSD",
+            "Memória RAM",
+            "Memória ROM",
+            "Pendrive",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>RAM vs ROM:</strong><br>• RAM: Volátil, rápida, armazena o que está em uso.<br>• ROM/HD/SSD: Não volátil, armazenamento permanente.",
+        },
+        {
+          id: 20,
+          category: "Nuvem (Cloud)",
+          q: "O armazenamento de arquivos em servidores remotos acessíveis via Internet (como OneDrive, Google Drive) é chamado de:",
+          options: [
+            "Computação em Nuvem (Cloud Computing)",
+            "Backup Local",
+            "Download",
+            "Firewall",
+            "Intranet",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Cloud Computing:</strong><br>Permite acessar arquivos e serviços de qualquer lugar, sem depender do armazenamento físico local.",
+        },
+      ];
+
+      // === VARIÁVEIS DE CONTROLE ===
+      let currentIndex = 0;
+      let score = 0;
+      let attempts = 0;
+
+      // === UI ELEMENTS ===
+      const ui = {
+        card: document.getElementById("quiz-card"),
+        resultScreen: document.getElementById("result-screen"),
+        qCategory: document.getElementById("q-category"),
+        qCount: document.getElementById("q-count"),
+        qText: document.getElementById("q-text"),
+        optsContainer: document.getElementById("options-container"),
+        progressBar: document.getElementById("progress-bar"),
+        scoreDisplay: document.getElementById("score-display"),
+        finalScore: document.getElementById("final-score-big"),
+        modal: document.getElementById("feedback-modal"),
+        modalHeader: document.getElementById("modal-header"),
+        modalIcon: document.getElementById("modal-icon"),
+        modalTitle: document.getElementById("modal-title"),
+        modalMsg: document.getElementById("modal-message"),
+        btnRetry: document.getElementById("btn-retry"),
+        btnNext: document.getElementById("btn-next"),
+      };
+
+      function init() {
+        currentIndex = 0;
+        score = 0;
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const q = questions[currentIndex];
+        attempts = 0;
+        ui.qCategory.innerText = q.category;
+        ui.qCount.innerText = `${currentIndex + 1}/${questions.length}`;
+        ui.qText.innerHTML = q.q;
+        ui.scoreDisplay.innerText = `Pontos: ${score}`;
+
+        const pct = (currentIndex / questions.length) * 100;
+        ui.progressBar.style.width = `${pct}%`;
+
+        ui.optsContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:bg-white hover:border-cyan-300 hover:shadow-md transition-all duration-200 flex items-center group no-select`;
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-white text-slate-500 font-bold flex items-center justify-center text-xs mr-4 border border-slate-200 group-hover:bg-cyan-600 group-hover:text-white group-hover:border-cyan-600 transition-colors">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswer(idx);
+          ui.optsContainer.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedIndex) {
+        const q = questions[currentIndex];
+        const isCorrect = selectedIndex === q.correct;
+
+        ui.modal.classList.remove("hidden");
+
+        if (isCorrect) {
+          if (attempts === 0) score += 10;
+          configureModal("success");
+          ui.modalTitle.innerText = "Resposta Certa!";
+          ui.modalMsg.innerHTML = `<span class="text-emerald-600 font-bold">Correto!</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.add("hidden");
+        } else {
+          attempts++;
+          configureModal("error");
+          ui.modalTitle.innerText = "Resposta Incorreta";
+          ui.modalMsg.innerHTML = `<span class="text-rose-600 font-bold">Fique Atento:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.remove("hidden");
+        }
+      }
+
+      function configureModal(type) {
+        if (type === "success") {
+          ui.modalHeader.className = "p-6 text-center bg-emerald-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-check text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition";
+        } else {
+          ui.modalHeader.className = "p-6 text-center bg-rose-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-xmark text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-lg transition";
+        }
+        ui.btnNext.focus();
+      }
+
+      ui.btnRetry.onclick = () => ui.modal.classList.add("hidden");
+
+      ui.btnNext.onclick = () => {
+        ui.modal.classList.add("hidden");
+        currentIndex++;
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
+      };
+
+      function showResults() {
+        ui.card.classList.add("hidden");
+        ui.resultScreen.classList.remove("hidden");
+        ui.finalScore.innerText = score;
+        ui.scoreDisplay.innerText = `Final: ${score}`;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

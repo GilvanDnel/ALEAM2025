@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Modelos de Redação - ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .hidden {
+        display: none !important;
+      }
+      /* Scrollbar roxa */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f3e8ff;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #9333ea;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+    <header class="bg-purple-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex items-center gap-3">
+        <a href="../index.html" class="opacity-80 hover:opacity-100 transition"
+          ><i class="fa-solid fa-arrow-left"></i
+        ></a>
+        <h1 class="font-bold text-lg">
+          <i class="fa-solid fa-book-open-reader mr-2"></i>Redações Nota 10
+        </h1>
+      </div>
+    </header>
+
+    <main class="flex-grow p-4 w-full max-w-xl mx-auto overflow-y-auto">
+      <p class="text-slate-500 text-sm mb-4 text-center">
+        Toque em um tema para ler o modelo completo.
+      </p>
+
+      <div id="themes-list" class="space-y-3"></div>
+    </main>
+
+    <div
+      id="reading-modal"
+      class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-lg h-[85vh] flex flex-col modal-enter relative"
+      >
+        <div
+          class="bg-purple-50 p-4 border-b border-purple-100 rounded-t-2xl flex justify-between items-start"
+        >
+          <h3
+            id="modal-title"
+            class="text-lg font-bold text-purple-800 w-11/12 leading-tight"
+          >
+            Título do Tema
+          </h3>
+          <button id="btn-close" class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-2xl"></i>
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar flex-grow">
+          <div
+            id="modal-content"
+            class="text-slate-700 text-base leading-relaxed space-y-4 text-justify"
+          ></div>
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-white rounded-b-2xl">
+          <button
+            onclick="document.getElementById('reading-modal').classList.add('hidden')"
+            class="w-full bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition shadow-lg"
+          >
+            Fechar Leitura
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE REDAÇÕES (LINGUAGEM SIMPLES) ===
+      const essays = [
+        {
+          id: 1,
+          title: "A Crise Climática e a Amazônia",
+          icon: "fa-tree",
+          text: `
+            <p><strong>Introdução:</strong> É inegável que a crise climática afeta o mundo todo, e o Amazonas está no centro dessa discussão. As secas e cheias recordes mostram que o problema é urgente. Portanto, é preciso equilibrar a preservação da floresta com a qualidade de vida de quem mora nela.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> Primeiramente, deve-se entender que a floresta em pé vale mais do que derrubada. O conceito de bioeconomia surge como solução. Isso significa usar produtos da mata, como o açaí e o cacau, para gerar renda sem desmatar. Assim, o morador ribeirinho ganha dinheiro e protege a natureza ao mesmo tempo.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> Além disso, o Estado precisa agir para prevenir desastres. Não basta apenas levar comida quando a seca chega; é necessário investir em infraestrutura que aguente as mudanças do clima. Se o governo não planejar, as populações mais pobres continuarão sofrendo todos os anos.</p>
+            
+            <p><strong>Conclusão:</strong> Sendo assim, a proteção da Amazônia depende de unir economia e ecologia. O governo deve apoiar a produção sustentável e preparar as cidades para o clima extremo. Só assim garantiremos o futuro da floresta e de seu povo.</p>
+          `,
+        },
+        {
+          id: 2,
+          title: "Inteligência Artificial e Trabalho",
+          icon: "fa-robot",
+          text: `
+            <p><strong>Introdução:</strong> A Inteligência Artificial (IA) já é uma realidade e está mudando a forma como trabalhamos. Embora traga modernidade, muitos temem perder o emprego. É preciso discutir como usar essa tecnologia como ferramenta, e não como inimiga do trabalhador.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> De um lado, a IA pode fazer tarefas repetitivas e chatas, deixando o ser humano livre para ser criativo. No serviço público, por exemplo, ela pode agilizar processos e diminuir a burocracia, melhorando o atendimento ao cidadão.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> Por outro lado, existe o risco real de desemprego para quem não se atualizar. Por isso, não basta apenas trazer máquinas novas; é fundamental treinar as pessoas. A educação continuada é a única forma de o trabalhador não ficar obsoleto.</p>
+            
+            <p><strong>Conclusão:</strong> Portanto, a tecnologia deve servir às pessoas. O poder público deve regular o uso da IA e oferecer cursos de qualificação. O futuro do trabalho depende de nossa capacidade de aprender a lidar com as novas máquinas.</p>
+          `,
+        },
+        {
+          id: 3,
+          title: "Segurança Pública e Fronteiras",
+          icon: "fa-shield-halved",
+          text: `
+            <p><strong>Introdução:</strong> A segurança pública no Amazonas é um desafio complexo, agravado pela imensidão de nossas fronteiras. O crime organizado usa os rios como rota de tráfico. Para combater isso, não basta apenas força policial; é preciso inteligência e presença do Estado.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> O primeiro ponto é a fiscalização. Nossas fronteiras são abertas e difíceis de vigiar. O uso de tecnologia, como radares e drones, é essencial para monitorar os rios e impedir a entrada de drogas e armas que abastecem a violência nas cidades.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> Além disso, a violência nasce onde o Estado falta. Em bairros sem escola, saúde ou lazer, o crime recruta jovens facilmente. Combater a violência exige, também, oferecer oportunidades dignas para a juventude da periferia.</p>
+            
+            <p><strong>Conclusão:</strong> Logo, a segurança se faz com polícia equipada e projetos sociais. É dever do Estado proteger as fronteiras com tecnologia e proteger os cidadãos com educação e emprego, atacando a raiz do problema.</p>
+          `,
+        },
+        {
+          id: 4,
+          title: "Inclusão Digital no Interior",
+          icon: "fa-wifi",
+          text: `
+            <p><strong>Introdução:</strong> A internet hoje é tão essencial quanto energia elétrica. Porém, no interior do Amazonas, a conexão ainda é precária. Essa exclusão digital cria desigualdade, pois quem não tem acesso à rede fica para trás nos estudos e no trabalho.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> É importante notar que muitos serviços públicos hoje são online. Se o cidadão do interior não tem internet, ele não consegue se inscrever em concursos, acessar bancos ou ter aulas à distância. Isso isola ainda mais quem já vive longe da capital.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> Ademais, a falta de infraestrutura é o maior obstáculo. Levar cabos de fibra ótica pela floresta é difícil, mas necessário. Tecnologias via satélite podem ser uma solução rápida para conectar comunidades ribeirinhas e indígenas.</p>
+            
+            <p><strong>Conclusão:</strong> Dessa forma, a inclusão digital é uma questão de cidadania. O governo deve investir pesado em infraestrutura de rede para garantir que o morador do interior tenha as mesmas oportunidades de quem vive em Manaus.</p>
+          `,
+        },
+        {
+          id: 5,
+          title: "Envelhecimento e Etarismo",
+          icon: "fa-person-cane",
+          text: `
+            <p><strong>Introdução:</strong> O Brasil está envelhecendo rápido, mas a sociedade ainda valoriza excessivamente a juventude. O preconceito contra idosos, chamado de etarismo, é um problema que precisa ser combatido, tanto no mercado de trabalho quanto na vida social.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> Muitas empresas demitem funcionários mais velhos achando que eles não sabem usar tecnologia ou são lentos. Isso é um erro, pois se perde a experiência e a sabedoria de quem trabalhou a vida toda. O idoso ativo e produtivo deve ser valorizado.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> Outro ponto é a previdência e a saúde. Com mais idosos, o sistema de saúde precisa estar preparado para atender doenças crônicas. Envelhecer com dignidade é um direito que deve ser garantido por políticas públicas eficientes.</p>
+            
+            <p><strong>Conclusão:</strong> Em suma, respeitar o idoso é respeitar nosso próprio futuro. É necessário combater o preconceito nas empresas e garantir saúde de qualidade, para que a terceira idade seja vivida com plenitude e respeito.</p>
+          `,
+        },
+        {
+          id: 6,
+          title: "Povos Indígenas e Desenvolvimento",
+          icon: "fa-feather",
+          text: `
+            <p><strong>Introdução:</strong> A preservação da cultura indígena é vital para a identidade do Brasil e do Amazonas. Contudo, há um conflito constante entre a proteção das terras ancestrais e o desejo de exploração econômica, como o garimpo. É preciso achar um caminho de respeito.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> Os povos originários são os verdadeiros guardiões da floresta. Onde há terra indígena demarcada, o desmatamento é menor. Respeitar seus direitos não é "atraso", mas sim uma estratégia inteligente de conservação ambiental.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> Por outro lado, invasões ilegais trazem doenças e violência para as aldeias. O Estado deve ser rigoroso na fiscalização e punição de invasores. O desenvolvimento não pode custar a vida e a cultura de quem estava aqui antes de nós.</p>
+            
+            <p><strong>Conclusão:</strong> Portanto, o progresso deve incluir o respeito à diversidade. Garantir a terra e a saúde dos indígenas é dever constitucional e moral, assegurando que o desenvolvimento da região seja justo para todos.</p>
+          `,
+        },
+        {
+          id: 7,
+          title: "Saúde Mental na Era Digital",
+          icon: "fa-head-side-virus",
+          text: `
+            <p><strong>Introdução:</strong> Nunca se falou tanto em ansiedade e depressão como hoje. A "sociedade do cansaço", impulsionada pelas redes sociais e pela cobrança por produtividade, está adoecendo as pessoas. Cuidar da mente é tão importante quanto cuidar do corpo.</p>
+            
+            <p><strong>Desenvolvimento 1:</strong> As redes sociais mostram vidas perfeitas que não existem, gerando frustração. Além disso, a tecnologia faz com que levemos trabalho para casa no celular, sem nunca descansar de verdade. Esse ritmo acelerado leva ao esgotamento, conhecido como Burnout.</p>
+            
+            <p><strong>Desenvolvimento 2:</strong> É fundamental que o trabalho não seja a única razão de viver. As empresas e órgãos públicos precisam respeitar o horário de descanso. O lazer e o tempo com a família não são "perda de tempo", mas sim saúde preventiva.</p>
+            
+            <p><strong>Conclusão:</strong> Logo, precisamos desacelerar. O equilíbrio entre vida online, trabalho e descanso real é o segredo. Cabe a cada um estabelecer limites e ao Estado oferecer suporte psicológico acessível a todos.</p>
+          `,
+        },
+      ];
+
+      // === GERAÇÃO DA LISTA DE BOTÕES ===
+      const listContainer = document.getElementById("themes-list");
+      const modal = document.getElementById("reading-modal");
+      const modalTitle = document.getElementById("modal-title");
+      const modalContent = document.getElementById("modal-content");
+      const btnClose = document.getElementById("btn-close");
+
+      essays.forEach((essay) => {
+        const btn = document.createElement("button");
+        btn.className =
+          "w-full bg-white p-4 rounded-xl shadow-sm border border-purple-100 hover:border-purple-400 hover:shadow-md transition-all duration-200 flex items-center group text-left";
+        btn.innerHTML = `
+          <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4 shrink-0 group-hover:bg-purple-600 group-hover:text-white transition">
+            <i class="fa-solid ${essay.icon} text-lg"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="font-bold text-slate-700 text-base group-hover:text-purple-700">${essay.title}</h3>
+            <p class="text-xs text-slate-400 mt-1">Toque para ler</p>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-purple-400"></i>
+        `;
+
+        btn.onclick = () => openModal(essay);
+        listContainer.appendChild(btn);
+      });
+
+      function openModal(essay) {
+        modalTitle.innerText = essay.title;
+        modalContent.innerHTML = essay.text;
+        modal.classList.remove("hidden");
+      }
+
+      btnClose.onclick = () => modal.classList.add("hidden");
+
+      // Fechar modal ao clicar fora
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+      };
+    </script>
+  </body>
+</html>

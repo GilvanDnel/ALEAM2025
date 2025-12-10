@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Raciocínio Lógico - FGV ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Animação do Modal */
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Scrollbar personalizada Roxo */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f3e8ff;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #a855f7;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-100 text-slate-800 min-h-screen flex flex-col overflow-hidden"
+  >
+    <header class="bg-purple-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <a
+            href="../index.html"
+            class="opacity-80 hover:opacity-100 transition"
+            ><i class="fa-solid fa-arrow-left"></i
+          ></a>
+          <h1 class="font-bold text-lg">
+            <i class="fa-solid fa-calculator mr-2"></i>Raciocínio Lógico FGV
+          </h1>
+        </div>
+        <div
+          class="text-xs font-bold bg-purple-800 px-3 py-1 rounded-full border border-purple-500 shadow-inner"
+        >
+          <span id="score-display">Pontos: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 w-full relative overflow-y-auto"
+    >
+      <div
+        id="quiz-card"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-full"
+      >
+        <div class="w-full bg-slate-100 h-1.5">
+          <div
+            id="progress-bar"
+            class="bg-purple-500 h-1.5 transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="q-category"
+              class="bg-purple-50 text-purple-700 text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-purple-100"
+            >
+              Categoria
+            </span>
+            <span id="q-count" class="text-xs font-bold text-slate-400">
+              1/15
+            </span>
+          </div>
+
+          <h2
+            id="q-text"
+            class="text-lg md:text-xl font-semibold text-slate-800 mb-6 leading-relaxed"
+          >
+            ...
+          </h2>
+
+          <div id="options-container" class="space-y-3 pb-2"></div>
+        </div>
+      </div>
+
+      <div
+        id="result-screen"
+        class="hidden w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center modal-enter"
+      >
+        <div
+          class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner"
+        >
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">
+          Treino Concluído!
+        </h2>
+        <p class="text-slate-500 mb-6">Sua pontuação lógica:</p>
+
+        <div
+          class="text-5xl font-black text-purple-600 mb-2 tracking-tighter"
+          id="final-score-big"
+        >
+          0
+        </div>
+        <div
+          class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8"
+        >
+          Pontos Totais
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg transform active:scale-95"
+        >
+          <i class="fa-solid fa-rotate-right mr-2"></i> Refazer Quiz
+        </button>
+      </div>
+    </main>
+
+    <div
+      id="feedback-modal"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-6 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-enter transform transition-all scale-100"
+      >
+        <div
+          id="modal-header"
+          class="p-6 text-center transition-colors duration-300"
+        >
+          <div
+            id="modal-icon"
+            class="text-5xl mb-2 drop-shadow-sm scale-110 transform transition-transform duration-500"
+          ></div>
+          <h3 id="modal-title" class="text-xl font-bold text-white mt-2"></h3>
+        </div>
+
+        <div class="p-6 text-center">
+          <div
+            id="modal-message"
+            class="text-slate-600 mb-6 text-sm font-medium leading-relaxed text-left bg-slate-50 p-3 rounded-lg border border-slate-100"
+          ></div>
+
+          <div class="flex flex-col gap-3">
+            <button
+              id="btn-retry"
+              class="hidden w-full py-3.5 px-4 rounded-xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition focus:outline-none"
+            >
+              <i class="fa-solid fa-rotate-left mr-2"></i> Tentar Novamente
+            </button>
+            <button
+              id="btn-next"
+              class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 focus:outline-none"
+            >
+              Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE QUESTÕES - RACIOCÍNIO LÓGICO (PADRÃO FGV) ===
+      const questions = [
+        {
+          id: 1,
+          category: "Equivalência Lógica",
+          q: "Considere a afirmação: <br><em>'Se é domingo, então vou à praia.'</em><br>Uma afirmação logicamente equivalente é:",
+          options: [
+            "Se vou à praia, então é domingo.",
+            "Se não vou à praia, então não é domingo.",
+            "Se não é domingo, então não vou à praia.",
+            "É domingo ou vou à praia.",
+            "Não é domingo e não vou à praia.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Regra da Contrapositiva:</strong><br>A equivalência de 'Se A, então B' é 'Se não B, então não A'.<br>Inverte-se a ordem e nega-se tudo.<br>Logo: Se não vou à praia (não B), então não é domingo (não A).",
+        },
+        {
+          id: 2,
+          category: "Negação de Proposição",
+          q: "A negação da frase <em>'Todo político é honesto'</em> é:",
+          options: [
+            "Nenhum político é honesto.",
+            "Todo político é desonesto.",
+            "Algum político não é honesto.",
+            "Algum político é honesto.",
+            "Existem políticos honestos.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Negação do TODO:</strong><br>Para negar que 'Todo A é B', basta que exista <strong>pelo menos um</strong> que não seja.<br>Regra: Troca 'Todo' por 'Algum/Pelo menos um' + NÃO.<br>Gabarito: Algum político NÃO é honesto.",
+        },
+        {
+          id: 3,
+          category: "Silogismo (Diagramas)",
+          q: "Sabe-se que: <br>1. Todo A é B.<br>2. Nenhum B é C.<br>Logo, é necessariamente verdade que:",
+          options: [
+            "Algum A é C.",
+            "Todo C é A.",
+            "Nenhum A é C.",
+            "Algum B não é A.",
+            "Nenhum C é B, mas pode ser A.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Diagrama Lógico:</strong><br>Se o conjunto A está totalmente dentro de B, e o conjunto B está totalmente separado de C, então A jamais pode tocar em C.<br>Logo, Nenhum A é C.",
+        },
+        {
+          id: 4,
+          category: "Negação Se... Então",
+          q: "Qual a negação lógica da afirmação: <br><em>'Se chover, levarei o guarda-chuva.'</em>?",
+          options: [
+            "Se não chover, não levarei o guarda-chuva.",
+            "Não chove e levarei o guarda-chuva.",
+            "Chove e não levarei o guarda-chuva.",
+            "Se chover, não levarei o guarda-chuva.",
+            "Chove ou não levarei o guarda-chuva.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Regra do MA-NE:</strong><br>Para negar 'Se A, então B':<br>Mantém a primeira (A) <strong>E</strong> Nega a segunda (não B).<br>Gabarito: Chove (mantém) E não levarei (nega).",
+        },
+        {
+          id: 5,
+          category: "Verdades e Mentiras",
+          q: "Três amigos, Ana, Bia e Carla, dizem:<br>Ana: 'Bia mente'.<br>Bia: 'Carla mente'.<br>Carla: 'Ana e Bia mentem'.<br>Quem está dizendo a verdade?",
+          options: [
+            "Apenas Ana.",
+            "Apenas Bia.",
+            "Apenas Carla.",
+            "Ana e Carla.",
+            "Ninguém.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Teste de Hipóteses:</strong><br>Se Bia diz a verdade, então Carla mente. Se Carla mente, a frase dela ('Ana e Bia mentem') é falsa, o que é compatível (pois Bia fala a verdade).<br>Se Bia fala a verdade, Ana diz que 'Bia mente', logo Ana está mentindo. Tudo se encaixa: Ana mente, Bia fala a verdade, Carla mente.",
+        },
+        {
+          id: 6,
+          category: "Sequências Lógicas",
+          q: "Considere a sequência: 2, 5, 10, 17, 26, ...<br>O próximo termo é:",
+          options: ["35", "36", "37", "38", "39"],
+          correct: 2,
+          explanation:
+            "<strong>Padrão:</strong><br>Observe a diferença entre os números: 3, 5, 7, 9... (números ímpares consecutivos).<br>O próximo acréscimo deve ser 11.<br>26 + 11 = 37.",
+        },
+        {
+          id: 7,
+          category: "Conjuntos (Diagrama)",
+          q: "Em um grupo de 50 pessoas, 30 gostam de Açaí, 25 gostam de Cupuaçu e 10 gostam de ambos. Quantas pessoas não gostam de nenhum dos dois?",
+          options: ["5", "10", "15", "20", "0"],
+          correct: 0,
+          explanation:
+            "<strong>Teoria dos Conjuntos:</strong><br>União = A + B - Interseção.<br>União = 30 + 25 - 10 = 45 pessoas gostam de pelo menos um.<br>Total (50) - União (45) = 5 não gostam de nada.",
+        },
+        {
+          id: 8,
+          category: "Lógica Argumentativa",
+          q: "<em>'Ou estudo ou trabalho. Se trabalho, ganho dinheiro. Ora, não ganho dinheiro.'</em><br>Logo:",
+          options: [
+            "Estudo e trabalho.",
+            "Não estudo e trabalho.",
+            "Estudo e não trabalho.",
+            "Não estudo e não trabalho.",
+            "Ganho dinheiro.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Caminho Inverso:</strong><br>1. Não ganho dinheiro (Verdade).<br>2. Se trabalho, ganho. Como não ganhei, então NÃO trabalho.<br>3. Ou estudo ou trabalho. Como não trabalho, então ESTUDO.<br>Gabarito: Estudo e não trabalho.",
+        },
+        {
+          id: 9,
+          category: "Probabilidade Básica",
+          q: "Lançando-se um dado comum (6 faces) duas vezes, qual a probabilidade de saírem dois números iguais?",
+          options: ["1/6", "1/36", "1/2", "5/6", "1/12"],
+          correct: 0,
+          explanation:
+            "<strong>Cálculo:</strong><br>Total de casos possíveis: 6 x 6 = 36.<br>Casos favoráveis (iguais): (1,1), (2,2), (3,3), (4,4), (5,5), (6,6) = 6 casos.<br>Probabilidade = 6/36 = 1/6.",
+        },
+        {
+          id: 10,
+          category: "Análise Combinatória",
+          q: "De quantas formas diferentes 3 pessoas podem se sentar em um banco de 5 lugares?",
+          options: ["10", "15", "20", "60", "120"],
+          correct: 3,
+          explanation:
+            "<strong>Arranjo (a ordem importa):</strong><br>A primeira pessoa tem 5 opções.<br>A segunda tem 4 opções.<br>A terceira tem 3 opções.<br>5 x 4 x 3 = 60.",
+        },
+        {
+          id: 11,
+          category: "Matemática (Porcentagem)",
+          q: "Um produto custava R$ 100,00. Sofreu um aumento de 10% e, em seguida, um desconto de 10% sobre o novo valor. O preço final é:",
+          options: [
+            "R$ 100,00",
+            "R$ 99,00",
+            "R$ 90,00",
+            "R$ 101,00",
+            "R$ 110,00",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Pegadinha Clássica:</strong><br>100 + 10% = 110.<br>Desconto de 10% sobre 110 é R$ 11,00.<br>110 - 11 = R$ 99,00.<br>Sempre que sobe X% e desce X%, o valor final é menor que o inicial.",
+        },
+        {
+          id: 12,
+          category: "Proposições",
+          q: "Quantas linhas tem a tabela-verdade da proposição composta P ^ (Q v R)?",
+          options: ["3", "4", "6", "8", "9"],
+          correct: 3,
+          explanation:
+            "<strong>Fórmula 2^n:</strong><br>O número de linhas é 2 elevado ao número de proposições simples.<br>Temos P, Q e R (3 proposições).<br>2³ = 2 x 2 x 2 = 8 linhas.",
+        },
+        {
+          id: 13,
+          category: "Geometria (Área)",
+          q: "Se duplicarmos o lado de um quadrado, sua área será multiplicada por:",
+          options: ["2", "3", "4", "6", "8"],
+          correct: 2,
+          explanation:
+            "<strong>Área = Lado²:</strong><br>Se lado = 2, Área = 4.<br>Se lado duplica para 4, Área = 16.<br>16 é 4 vezes maior que 4. A área quadruplica.",
+        },
+        {
+          id: 14,
+          category: "Lógica Temporal",
+          q: "Se hoje é quarta-feira, daqui a 100 dias será:",
+          options: [
+            "Quarta-feira.",
+            "Quinta-feira.",
+            "Sexta-feira.",
+            "Sábado.",
+            "Domingo.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Ciclo de 7 dias:</strong><br>100 dividido por 7 dá resto 2.<br>Isso significa que serão 14 semanas completas + 2 dias.<br>Quarta + 2 dias = Sexta-feira.",
+        },
+        {
+          id: 15,
+          category: "Conectivos (Ou... Ou)",
+          q: "A negação de 'Ou como pizza ou como hambúrguer' (Disjunção Exclusiva) é:",
+          options: [
+            "Como pizza e hambúrguer.",
+            "Como pizza se e somente se como hambúrguer.",
+            "Não como pizza nem hambúrguer.",
+            "Se como pizza então como hambúrguer.",
+            "Como pizza ou como hambúrguer (Inclusiva).",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Negação do Ou... Ou:</strong><br>A negação da Disjunção Exclusiva (V/F ou F/V) é a Bicondicional (V/V ou F/F).<br>Ou seja: '...se e somente se...'.",
+        },
+      ];
+
+      // === VARIÁVEIS DE CONTROLE ===
+      let currentIndex = 0;
+      let score = 0;
+      let attempts = 0;
+
+      // === UI ELEMENTS ===
+      const ui = {
+        card: document.getElementById("quiz-card"),
+        resultScreen: document.getElementById("result-screen"),
+        qCategory: document.getElementById("q-category"),
+        qCount: document.getElementById("q-count"),
+        qText: document.getElementById("q-text"),
+        optsContainer: document.getElementById("options-container"),
+        progressBar: document.getElementById("progress-bar"),
+        scoreDisplay: document.getElementById("score-display"),
+        finalScore: document.getElementById("final-score-big"),
+        modal: document.getElementById("feedback-modal"),
+        modalHeader: document.getElementById("modal-header"),
+        modalIcon: document.getElementById("modal-icon"),
+        modalTitle: document.getElementById("modal-title"),
+        modalMsg: document.getElementById("modal-message"),
+        btnRetry: document.getElementById("btn-retry"),
+        btnNext: document.getElementById("btn-next"),
+      };
+
+      function init() {
+        currentIndex = 0;
+        score = 0;
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const q = questions[currentIndex];
+        attempts = 0;
+        ui.qCategory.innerText = q.category;
+        ui.qCount.innerText = `${currentIndex + 1}/${questions.length}`;
+        ui.qText.innerHTML = q.q;
+        ui.scoreDisplay.innerText = `Pontos: ${score}`;
+
+        const pct = (currentIndex / questions.length) * 100;
+        ui.progressBar.style.width = `${pct}%`;
+
+        ui.optsContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:bg-white hover:border-purple-300 hover:shadow-md transition-all duration-200 flex items-center group no-select`;
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-white text-slate-500 font-bold flex items-center justify-center text-xs mr-4 border border-slate-200 group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600 transition-colors">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswer(idx);
+          ui.optsContainer.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedIndex) {
+        const q = questions[currentIndex];
+        const isCorrect = selectedIndex === q.correct;
+
+        ui.modal.classList.remove("hidden");
+
+        if (isCorrect) {
+          if (attempts === 0) score += 10;
+          configureModal("success");
+          ui.modalTitle.innerText = "Lógica Correta!";
+          ui.modalMsg.innerHTML = `<span class="text-emerald-600 font-bold">Raciocínio FGV:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.add("hidden");
+        } else {
+          attempts++;
+          configureModal("error");
+          ui.modalTitle.innerText = "Erro Lógico";
+          ui.modalMsg.innerHTML = `<span class="text-rose-600 font-bold">Correção:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.remove("hidden");
+        }
+      }
+
+      function configureModal(type) {
+        if (type === "success") {
+          ui.modalHeader.className = "p-6 text-center bg-emerald-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-check text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition";
+        } else {
+          ui.modalHeader.className = "p-6 text-center bg-rose-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-xmark text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-lg transition";
+        }
+        ui.btnNext.focus();
+      }
+
+      ui.btnRetry.onclick = () => ui.modal.classList.add("hidden");
+
+      ui.btnNext.onclick = () => {
+        ui.modal.classList.add("hidden");
+        currentIndex++;
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
+      };
+
+      function showResults() {
+        ui.card.classList.add("hidden");
+        ui.resultScreen.classList.remove("hidden");
+        ui.finalScore.innerText = score;
+        ui.scoreDisplay.innerText = `Final: ${score}`;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

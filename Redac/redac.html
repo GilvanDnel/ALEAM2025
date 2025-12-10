@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Redação Tática - FGV ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Scrollbar personalizada Rosa Choque */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #fbcfe8;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #db2777;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-100 text-slate-800 min-h-screen flex flex-col overflow-hidden"
+  >
+    <header class="bg-pink-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <a
+            href="../index.html"
+            class="opacity-80 hover:opacity-100 transition"
+            ><i class="fa-solid fa-arrow-left"></i
+          ></a>
+          <h1 class="font-bold text-lg">
+            <i class="fa-solid fa-pen-nib mr-2"></i>Redação FGV
+          </h1>
+        </div>
+        <div
+          class="text-xs font-bold bg-pink-800 px-3 py-1 rounded-full border border-pink-500 shadow-inner"
+        >
+          <span id="score-display">Pontos: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 w-full relative overflow-y-auto"
+    >
+      <div
+        id="quiz-card"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-full"
+      >
+        <div class="w-full bg-slate-100 h-1.5">
+          <div
+            id="progress-bar"
+            class="bg-pink-500 h-1.5 transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="q-category"
+              class="bg-pink-50 text-pink-700 text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-pink-100"
+            >
+              Categoria
+            </span>
+            <span id="q-count" class="text-xs font-bold text-slate-400">
+              1/20
+            </span>
+          </div>
+
+          <h2
+            id="q-text"
+            class="text-lg md:text-xl font-semibold text-slate-800 mb-6 leading-relaxed"
+          >
+            ...
+          </h2>
+
+          <div id="options-container" class="space-y-3 pb-2"></div>
+        </div>
+      </div>
+
+      <div
+        id="result-screen"
+        class="hidden w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center modal-enter"
+      >
+        <div
+          class="w-20 h-20 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner"
+        >
+          <i class="fa-solid fa-feather-pointed"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Escrita Afiada!</h2>
+        <p class="text-slate-500 mb-6">Sua nota teórica:</p>
+
+        <div
+          class="text-5xl font-black text-pink-600 mb-2 tracking-tighter"
+          id="final-score-big"
+        >
+          0
+        </div>
+        <div
+          class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8"
+        >
+          Pontos Totais
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg transform active:scale-95"
+        >
+          <i class="fa-solid fa-rotate-right mr-2"></i> Refazer Treino
+        </button>
+      </div>
+    </main>
+
+    <div
+      id="feedback-modal"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-6 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-enter transform transition-all scale-100"
+      >
+        <div
+          id="modal-header"
+          class="p-6 text-center transition-colors duration-300"
+        >
+          <div
+            id="modal-icon"
+            class="text-5xl mb-2 drop-shadow-sm scale-110 transform transition-transform duration-500"
+          ></div>
+          <h3 id="modal-title" class="text-xl font-bold text-white mt-2"></h3>
+        </div>
+
+        <div class="p-6 text-center">
+          <div
+            id="modal-message"
+            class="text-slate-600 mb-6 text-sm font-medium leading-relaxed text-left bg-slate-50 p-3 rounded-lg border border-slate-100"
+          ></div>
+
+          <div class="flex flex-col gap-3">
+            <button
+              id="btn-retry"
+              class="hidden w-full py-3.5 px-4 rounded-xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition focus:outline-none"
+            >
+              <i class="fa-solid fa-rotate-left mr-2"></i> Tentar Novamente
+            </button>
+            <button
+              id="btn-next"
+              class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 focus:outline-none"
+            >
+              Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE QUESTÕES - TÉCNICA DE REDAÇÃO (FGV ALEAM) ===
+      const questions = [
+        // BLOCO 1: ESTRUTURA E REGRAS DO EDITAL
+        {
+          id: 1,
+          category: "Regras do Edital",
+          q: "Segundo o Edital da ALEAM, a redação deve ser do gênero <strong>Dissertativo-Argumentativo</strong>. Isso significa que você deve:",
+          options: [
+            "Contar uma história com personagens e cenário.",
+            "Descrever um objeto ou cena detalhadamente.",
+            "Defender um ponto de vista (tese) sobre um tema, usando argumentos.",
+            "Dar instruções de como realizar uma tarefa.",
+            "Resumir um texto fornecido pela banca.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Dissertativo-Argumentativo:</strong><br>Exige opinião fundamentada. Não fique em cima do muro! Você precisa ter uma tese e prová-la com argumentos sólidos.",
+        },
+        {
+          id: 2,
+          category: "Regras do Edital",
+          q: "A redação deverá ter no máximo 30 linhas. Qual é a consequência prevista no edital para quem escrever o texto a lápis?",
+          options: [
+            "Perda de 2 pontos na nota final.",
+            "O texto não será corrigido, mas não zera.",
+            "Nota ZERO automática.",
+            "Será corrigido apenas se estiver legível.",
+            "O candidato terá 10 minutos para passar a caneta.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Risco de Zero:</strong><br>O Item 8.13.1 é claro: 'Será atribuída nota 0 (zero) à Prova Discursiva/Redação escrita a lápis'. Use caneta azul ou preta de material transparente.",
+        },
+        {
+          id: 3,
+          category: "Estrutura - Introdução",
+          q: "A função principal do parágrafo de <strong>Introdução</strong> é:",
+          options: [
+            "Desenvolver os argumentos com exemplos.",
+            "Apresentar o tema e a tese (opinião central) que será defendida.",
+            "Concluir o pensamento e propor solução.",
+            "Listar todos os dados estatísticos do texto.",
+            "Contar a história da origem do problema.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Tese na Cabeça:</strong><br>A introdução serve para contextualizar o leitor e dizer 'o que você pensa' sobre o assunto (sua Tese). Não deixe a tese para o final!",
+        },
+        {
+          id: 4,
+          category: "Estrutura - Desenvolvimento",
+          q: "Nos parágrafos de <strong>Desenvolvimento</strong>, o candidato deve focar em:",
+          options: [
+            "Repetir a tese várias vezes para fixar.",
+            "Apresentar argumentos, fatos, exemplos e dados que comprovem a tese.",
+            "Fazer uma síntese do que foi dito na introdução.",
+            "Propor a intervenção social detalhada.",
+            "Mudar de assunto para mostrar conhecimento geral.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Argumentação Sólida:</strong><br>É aqui que você ganha a nota de 'Conteúdo'. Use estratégias argumentativas: causa e consequência, exemplificação, comparação histórica.",
+        },
+        {
+          id: 5,
+          category: "Critérios de Correção",
+          q: "Um dos critérios de correção da FGV é a <strong>Progressão Textual</strong>. Isso avalia se:",
+          options: [
+            "O texto tem letra bonita.",
+            "O candidato usou palavras difíceis.",
+            "As ideias estão encadeadas de forma lógica, evoluindo sem repetições viciosas (circularidade).",
+            "O texto atingiu o número máximo de linhas.",
+            "A redação tem título criativo.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Sem 'Encher Linguiça':</strong><br>A FGV penaliza textos que ficam rodando no mesmo lugar. Cada parágrafo deve acrescentar uma informação nova ou aprofundar a anterior.",
+        },
+
+        // BLOCO 2: COESÃO E CONECTIVOS (CHAVE PARA A NOTA)
+        {
+          id: 6,
+          category: "Conectivos - Conclusão",
+          q: "Para iniciar o parágrafo de <strong>Conclusão</strong>, o conectivo mais adequado é:",
+          options: [
+            "Primeiramente,",
+            "Contudo,",
+            "Portanto,",
+            "Ademais,",
+            "Porquanto,",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Conclusivos:</strong><br>Use: Portanto, Dessa forma, Logo, Em suma. Evite 'Contudo' (oposição) ou 'Ademais' (adição) para fechar o texto.",
+        },
+        {
+          id: 7,
+          category: "Conectivos - Oposição",
+          q: "No desenvolvimento, para introduzir um contraponto (ideia contrária), deve-se usar:",
+          options: [
+            "Além disso,",
+            "Outrossim,",
+            "Entretanto,",
+            "Consequentemente,",
+            "Assim,",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Adversativos:</strong><br>Entretanto, Todavia, No entanto, Por outro lado. São essenciais para mostrar que você sabe debater ideias opostas.",
+        },
+        {
+          id: 8,
+          category: "Conectivos - Adição",
+          q: "Para somar um novo argumento no segundo parágrafo de desenvolvimento, o ideal é começar com:",
+          options: [
+            "Portanto,",
+            "Além disso / Ademais,",
+            "Todavia,",
+            "Em síntese,",
+            "Apesar disso,",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Somando Forças:</strong><br>'Além disso', 'Ademais', 'Outrossim' indicam que você vai trazer MAIS um motivo para reforçar sua tese.",
+        },
+        {
+          id: 9,
+          category: "Coesão - Referência",
+          q: "Para evitar repetir a palavra 'Governo' várias vezes, você pode usar os seguintes elementos coesivos, EXCETO:",
+          options: [
+            "O Estado.",
+            "O Poder Público.",
+            "A Administração.",
+            "O Executivo.",
+            "A Iniciativa Privada.",
+          ],
+          correct: 4,
+          explanation:
+            "<strong>Vocabulário Variado:</strong><br>'Iniciativa Privada' é o oposto de Governo (Setor Público). Usar sinônimos ou hiperônimos melhora a nota de 'Seleção Vocabular'.",
+        },
+        {
+          id: 10,
+          category: "Vícios de Linguagem",
+          q: "Na redação dissertativa oficial, deve-se EVITAR marcas de oralidade e pessoalidade, como em:",
+          options: [
+            "Nota-se que o problema persiste.",
+            "É fundamental analisar as causas.",
+            "Eu acho que o governo tá vacilando.",
+            "Verifica-se um aumento nos casos.",
+            "O cenário atual exige medidas.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Impessoalidade e Norma Culta:</strong><br>'Eu acho' (1ª pessoa + achismo) e 'tá' (oralidade/gíria) derrubam sua nota. Use a 3ª pessoa ('Nota-se', 'Sabe-se').",
+        },
+
+        // BLOCO 3: TEMAS E ARGUMENTOS (FGV STYLE)
+        {
+          id: 11,
+          category: "Tema - Tecnologia",
+          q: "Se o tema for 'Impactos da Inteligência Artificial no Trabalho', um argumento válido seria:",
+          options: [
+            "A IA vai destruir o mundo igual no filme Exterminador do Futuro.",
+            "A automação pode gerar desemprego estrutural, exigindo requalificação profissional.",
+            "Eu não gosto de robôs.",
+            "A tecnologia é sempre ruim.",
+            "Antigamente era melhor.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Argumento Racional:</strong><br>Fuja do senso comum ou de opiniões puramente emocionais. Fale de conceitos econômicos/sociais (desemprego estrutural, requalificação).",
+        },
+        {
+          id: 12,
+          category: "Tema - Meio Ambiente",
+          q: "Em um tema sobre 'Desenvolvimento Sustentável na Amazônia', é fundamental mencionar o conceito de:",
+          options: [
+            "Desmatamento total para progresso.",
+            "Intocabilidade absoluta da floresta (não tocar em nada).",
+            "Bioeconomia e uso racional dos recursos.",
+            "Proibição de qualquer atividade humana.",
+            "Urbanização desenfreada.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Equilíbrio:</strong><br>A FGV gosta do caminho do meio. Nem destruição, nem museu intocável. O conceito chave é 'Bioeconomia': gerar riqueza com a floresta em pé.",
+        },
+        {
+          id: 13,
+          category: "Tema - Cidadania",
+          q: "Para temas sobre 'Direitos e Cidadania', a principal base legal para citar como argumento de autoridade é:",
+          options: [
+            "O Código Penal.",
+            "A Constituição Federal de 1988.",
+            "O Código de Trânsito.",
+            "A Bíblia.",
+            "O Regimento Interno.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>A Carta Magna:</strong><br>Citar a Constituição (ex: Art. 5º, Art. 6º - direitos sociais) enriquece muito o texto e mostra repertório sociocultural.",
+        },
+        {
+          id: 14,
+          category: "Estratégia - Fuga ao Tema",
+          q: "Se o tema é 'A importância da vacinação' e o candidato escreve apenas sobre 'A importância de comer frutas', ocorre:",
+          options: [
+            "Abordagem criativa.",
+            "Tangenciamento do tema.",
+            "Fuga total ao tema (Nota Zero).",
+            "Argumentação por analogia.",
+            "Erro de gramática.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Fuga ao Tema = Zero:</strong><br>Se você não falar sobre o assunto proposto, a redação é zerada imediatamente. Se falar 'mais ou menos', é tangenciamento (nota baixa).",
+        },
+        {
+          id: 15,
+          category: "Argumentação - Falácia",
+          q: "Evite generalizações indevidas (falácias), como na frase:",
+          options: [
+            "Alguns políticos cometeram crimes.",
+            "Dados mostram aumento da violência.",
+            "Todo político é corrupto e nenhum presta.",
+            "A corrupção é um problema sistêmico.",
+            "Houve casos de desvio de verba.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Generalização Burra:</strong><br>Dizer 'Todo X é Y' ou 'Ninguém faz Z' enfraquece o argumento. Prefira: 'Muitos', 'Grande parte', 'É comum observar'.",
+        },
+
+        // BLOCO 4: GRAMÁTICA APLICADA À REDAÇÃO
+        {
+          id: 16,
+          category: "Gramática - Pontuação",
+          q: "O uso da vírgula está INCORRETO e prejudica a clareza em:",
+          options: [
+            "O Brasil, país continental, enfrenta desafios.",
+            "O governo deve, investir em saúde.",
+            "No Brasil, a educação precisa melhorar.",
+            "Portanto, medidas são necessárias.",
+            "Homens, mulheres e crianças participaram.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Não separe Sujeito e Verbo:</strong><br>'O governo (sujeito) deve investir (verbo)'. Essa vírgula entre eles é um erro grave que desconta ponto na competência gramatical.",
+        },
+        {
+          id: 17,
+          category: "Gramática - Crase",
+          q: "Na conclusão, ao propor uma solução, a crase está correta em:",
+          options: [
+            "Cabe à sociedade fiscalizar.",
+            "Cabe a sociedade fiscalizar.",
+            "O governo deve combater a fome.",
+            "Refere-se a problemas sociais.",
+            "Vamos a luta.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Regência:</strong><br>Caber <strong>A</strong> (preposição) + <strong>A</strong> sociedade (artigo) = <strong>À</strong> sociedade. Errar crase é desconto certo.",
+        },
+        {
+          id: 18,
+          category: "Estética Textual",
+          q: "Sobre a apresentação visual da redação (paragrafação e margens), o candidato deve:",
+          options: [
+            "Escrever até o final da linha e respeitar as margens (não ultrapassar nem deixar buracos).",
+            "Deixar cada linha com um tamanho diferente para ficar artístico.",
+            "Pular linhas entre os parágrafos.",
+            "Fazer desenhos nas margens.",
+            "Escrever fora da caixa de texto.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Justificação:</strong><br>O texto deve ser visualmente limpo. Respeite o recuo do parágrafo e vá até o fim da linha (hifenize se precisar) para não deixar o texto 'dentado' na direita.",
+        },
+        {
+          id: 19,
+          category: "Título",
+          q: "Na redação da FGV, o título:",
+          options: [
+            "É sempre obrigatório e conta ponto.",
+            "É proibido.",
+            "É facultativo (conta como linha escrita, mas não é obrigatório, salvo se o edital pedir expressamente).",
+            "Deve ser escrito em vermelho.",
+            "Deve ter 3 linhas.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Facultativo:</strong><br>Geralmente, na FGV, o título é opcional. Se colocar, não pule linha depois dele. Use o espaço para argumentar. Na dúvida, comece direto o texto.",
+        },
+        {
+          id: 20,
+          category: "Planejamento",
+          q: "Antes de começar a escrever na folha definitiva, o ideal é:",
+          options: [
+            "Rezar e começar direto a caneta.",
+            "Fazer um esquema (Brainstorming) e um rascunho completo.",
+            "Escrever a lápis na folha definitiva e passar caneta por cima.",
+            "Copiar os textos motivadores.",
+            "Desenhar no rascunho.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Projeto de Texto:</strong><br>O rascunho é vital para organizar as ideias, corrigir erros e garantir que o texto tenha começo, meio e fim antes de passar a limpo.",
+        },
+      ];
+
+      // === VARIÁVEIS DE CONTROLE ===
+      let currentIndex = 0;
+      let score = 0;
+      let attempts = 0;
+
+      const ui = {
+        card: document.getElementById("quiz-card"),
+        resultScreen: document.getElementById("result-screen"),
+        qCategory: document.getElementById("q-category"),
+        qCount: document.getElementById("q-count"),
+        qText: document.getElementById("q-text"),
+        optsContainer: document.getElementById("options-container"),
+        progressBar: document.getElementById("progress-bar"),
+        scoreDisplay: document.getElementById("score-display"),
+        finalScore: document.getElementById("final-score-big"),
+        modal: document.getElementById("feedback-modal"),
+        modalHeader: document.getElementById("modal-header"),
+        modalIcon: document.getElementById("modal-icon"),
+        modalTitle: document.getElementById("modal-title"),
+        modalMsg: document.getElementById("modal-message"),
+        btnRetry: document.getElementById("btn-retry"),
+        btnNext: document.getElementById("btn-next"),
+      };
+
+      function init() {
+        currentIndex = 0;
+        score = 0;
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const q = questions[currentIndex];
+        attempts = 0;
+        ui.qCategory.innerText = q.category;
+        ui.qCount.innerText = `${currentIndex + 1}/${questions.length}`;
+        ui.qText.innerHTML = q.q; // HTML permitido para negrito
+        ui.scoreDisplay.innerText = `Pontos: ${score}`;
+
+        const pct = (currentIndex / questions.length) * 100;
+        ui.progressBar.style.width = `${pct}%`;
+
+        ui.optsContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:bg-white hover:border-pink-300 hover:shadow-md transition-all duration-200 flex items-center group no-select`;
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-white text-slate-500 font-bold flex items-center justify-center text-xs mr-4 border border-slate-200 group-hover:bg-pink-600 group-hover:text-white group-hover:border-pink-600 transition-colors">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswer(idx);
+          ui.optsContainer.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedIndex) {
+        const q = questions[currentIndex];
+        const isCorrect = selectedIndex === q.correct;
+
+        ui.modal.classList.remove("hidden");
+
+        if (isCorrect) {
+          if (attempts === 0) score += 5; // Peso adaptado
+          configureModal("success");
+          ui.modalTitle.innerText = "Argumento Sólido!";
+          ui.modalMsg.innerHTML = `<span class="text-emerald-600 font-bold">Dica FGV:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.add("hidden");
+        } else {
+          attempts++;
+          configureModal("error");
+          ui.modalTitle.innerText = "Falha na Coesão";
+          ui.modalMsg.innerHTML = `<span class="text-rose-600 font-bold">Correção:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.remove("hidden");
+        }
+      }
+
+      function configureModal(type) {
+        if (type === "success") {
+          ui.modalHeader.className = "p-6 text-center bg-emerald-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-check text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition";
+        } else {
+          ui.modalHeader.className = "p-6 text-center bg-rose-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-xmark text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-lg transition";
+        }
+        ui.btnNext.focus();
+      }
+
+      ui.btnRetry.onclick = () => ui.modal.classList.add("hidden");
+
+      ui.btnNext.onclick = () => {
+        ui.modal.classList.add("hidden");
+        currentIndex++;
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
+      };
+
+      function showResults() {
+        ui.card.classList.add("hidden");
+        ui.resultScreen.classList.remove("hidden");
+        ui.finalScore.innerText = score;
+        ui.scoreDisplay.innerText = `Final: ${score}`;
+      }
+
+      init();
+    </script>
+  </body>
+</html>

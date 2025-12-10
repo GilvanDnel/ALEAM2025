@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Específicos - FGV ALEAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      .modal-enter {
+        animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* Scrollbar personalizada Vermelha */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #fff1f2;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #e11d48;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-100 text-slate-800 min-h-screen flex flex-col overflow-hidden"
+  >
+    <header class="bg-rose-700 text-white p-4 shadow-lg z-10 shrink-0">
+      <div class="container mx-auto max-w-xl flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <a
+            href="../index.html"
+            class="opacity-80 hover:opacity-100 transition"
+            ><i class="fa-solid fa-arrow-left"></i
+          ></a>
+          <h1 class="font-bold text-lg">
+            <i class="fa-solid fa-briefcase mr-2"></i>Específicos FGV
+          </h1>
+        </div>
+        <div
+          class="text-xs font-bold bg-rose-800 px-3 py-1 rounded-full border border-rose-500 shadow-inner"
+        >
+          <span id="score-display">Pontos: 0</span>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-grow flex flex-col items-center justify-center p-4 w-full relative overflow-y-auto"
+    >
+      <div
+        id="quiz-card"
+        class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col max-h-full"
+      >
+        <div class="w-full bg-slate-100 h-1.5">
+          <div
+            id="progress-bar"
+            class="bg-rose-500 h-1.5 transition-all duration-500 ease-out"
+            style="width: 0%"
+          ></div>
+        </div>
+
+        <div class="p-6 overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center mb-4">
+            <span
+              id="q-category"
+              class="bg-rose-50 text-rose-700 text-[10px] uppercase font-bold px-2 py-1 rounded tracking-wider border border-rose-100"
+            >
+              Categoria
+            </span>
+            <span id="q-count" class="text-xs font-bold text-slate-400">
+              1/40
+            </span>
+          </div>
+
+          <h2
+            id="q-text"
+            class="text-lg md:text-xl font-semibold text-slate-800 mb-6 leading-relaxed"
+          >
+            ...
+          </h2>
+
+          <div id="options-container" class="space-y-3 pb-2"></div>
+        </div>
+      </div>
+
+      <div
+        id="result-screen"
+        class="hidden w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center modal-enter"
+      >
+        <div
+          class="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner"
+        >
+          <i class="fa-solid fa-medal"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Missão Cumprida!</h2>
+        <p class="text-slate-500 mb-6">Pontuação Final:</p>
+
+        <div
+          class="text-5xl font-black text-rose-600 mb-2 tracking-tighter"
+          id="final-score-big"
+        >
+          0
+        </div>
+        <div
+          class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8"
+        >
+          Pontos Totais
+        </div>
+
+        <button
+          onclick="location.reload()"
+          class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg transform active:scale-95"
+        >
+          <i class="fa-solid fa-rotate-right mr-2"></i> Refazer Quiz
+        </button>
+      </div>
+    </main>
+
+    <div
+      id="feedback-modal"
+      class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-6 transition-opacity duration-200"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden modal-enter transform transition-all scale-100"
+      >
+        <div
+          id="modal-header"
+          class="p-6 text-center transition-colors duration-300"
+        >
+          <div
+            id="modal-icon"
+            class="text-5xl mb-2 drop-shadow-sm scale-110 transform transition-transform duration-500"
+          ></div>
+          <h3 id="modal-title" class="text-xl font-bold text-white mt-2"></h3>
+        </div>
+
+        <div class="p-6 text-center">
+          <div
+            id="modal-message"
+            class="text-slate-600 mb-6 text-sm font-medium leading-relaxed text-left bg-slate-50 p-3 rounded-lg border border-slate-100"
+          ></div>
+
+          <div class="flex flex-col gap-3">
+            <button
+              id="btn-retry"
+              class="hidden w-full py-3.5 px-4 rounded-xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition focus:outline-none"
+            >
+              <i class="fa-solid fa-rotate-left mr-2"></i> Tentar Novamente
+            </button>
+            <button
+              id="btn-next"
+              class="w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 focus:outline-none"
+            >
+              Próxima <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === BANCO DE QUESTÕES - ESPECÍFICAS (PADRÃO FGV) ===
+      const questions = [
+        // --- ARQUIVOLOGIA (Baseado em Niterói/Caraguatatuba) ---
+        {
+          id: 1,
+          category: "Arquivologia - Princípios",
+          q: "O princípio arquivístico segundo o qual os arquivos originários de uma instituição não devem ser misturados com os de outra entidade geradora é chamado de:",
+          options: [
+            "Princípio da Territorialidade.",
+            "Princípio da Proveniência (Respeito aos Fundos).",
+            "Princípio da Organicidade.",
+            "Princípio da Ordem Original.",
+            "Princípio da Indivisibilidade.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Proveniência (Fundo):</strong><br>É o princípio fundamental. Arquivos de entidades diferentes (ex: ALEAM e Governo do Estado) não se misturam. Cada um tem seu 'fundo'.",
+        },
+        {
+          id: 2,
+          category: "Arquivologia - Ciclo Vital",
+          q: "Documentos que são consultados frequentemente e que cumprem a finalidade para a qual foram criados pertencem à fase:",
+          options: [
+            "Corrente (1ª Idade).",
+            "Intermediária (2ª Idade).",
+            "Permanente (3ª Idade).",
+            "Histórica.",
+            "Morto.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Teoria das 3 Idades:</strong><br>• Corrente: Uso frequente, em trâmite.<br>• Intermediário: Uso eventual, aguardando destino.<br>• Permanente: Valor histórico, nunca pode ser eliminado.",
+        },
+        {
+          id: 3,
+          category: "Arquivologia - Instrumentos",
+          q: "O instrumento arquivístico que determina os prazos de guarda dos documentos nas fases corrente e intermediária e sua destinação final (eliminação ou guarda permanente) é a:",
+          options: [
+            "Lista de Verificação.",
+            "Tabela de Temporalidade.",
+            "Plano de Classificação.",
+            "Inventário.",
+            "Ata de Eliminação.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Tabela de Temporalidade:</strong><br>É a 'lei' interna do arquivo. Ela diz quanto tempo o papel fica na gaveta, quando vai para o depósito e quando pode ser rasgado ou guardado para sempre.",
+        },
+        {
+          id: 4,
+          category: "Arquivologia - Métodos",
+          q: "No método de arquivamento alfabético, ao arquivar o nome 'Pedro Álvares Cabral', a regra de alfabetação correta é:",
+          options: [
+            "Cabral, Pedro Álvares.",
+            "Pedro Álvares Cabral.",
+            "Álvares Cabral, Pedro.",
+            "Cabral, P. A.",
+            "Pedro, A. Cabral.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Regra Básica de Alfabetação:</strong><br>Nos nomes de pessoas físicas, considera-se o último sobrenome primeiro, seguido do prenome e demais sobrenomes.",
+        },
+        {
+          id: 5,
+          category: "Arquivologia - Gestão",
+          q: "A atividade de protocolo que consiste em receber o documento, ler para identificar o assunto e o setor de destino é chamada de:",
+          options: [
+            "Registro.",
+            "Autuação.",
+            "Classificação.",
+            "Expedição.",
+            "Tramitação.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Classificação no Protocolo:</strong><br>É o momento de análise. O servidor lê o documento para saber 'do que se trata' e 'para onde vai' dentro do plano de classificação da instituição.",
+        },
+
+        // --- LICITAÇÕES (LEI 14.133/2021) ---
+        {
+          id: 6,
+          category: "Lei 14.133 - Modalidades",
+          q: "A nova Lei de Licitações (14.133/2021) extinguiu modalidades antigas e criou uma nova. Assinale a modalidade que NÃO existe mais na nova lei:",
+          options: [
+            "Pregão.",
+            "Concorrência.",
+            "Tomada de Preços.",
+            "Leilão.",
+            "Diálogo Competitivo.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Fim da Tomada de Preços:</strong><br>A Lei 14.133 acabou com a Tomada de Preços e o Convite. Agora temos: Pregão, Concorrência, Concurso, Leilão e o novo Diálogo Competitivo.",
+        },
+        {
+          id: 7,
+          category: "Lei 14.133 - Dispensa",
+          q: "A contratação direta, sem licitação, em razão do baixo valor (pequenas compras), é um caso de:",
+          options: [
+            "Inexigibilidade de Licitação.",
+            "Licitação Fracassada.",
+            "Licitação Deserta.",
+            "Dispensa de Licitação.",
+            "Pregão Simplificado.",
+          ],
+          correct: 3,
+          explanation:
+            "<strong>Dispensa vs Inexigibilidade:</strong><br>• Dispensa: É possível competir, mas a lei deixa não fazer (ex: baixo valor, emergência).<br>• Inexigibilidade: Não há competição possível (ex: artista consagrado, fornecedor exclusivo).",
+        },
+        {
+          id: 8,
+          category: "Lei 14.133 - Diálogo",
+          q: "A modalidade 'Diálogo Competitivo' é utilizada quando:",
+          options: [
+            "O objeto é comum e de baixo valor.",
+            "A administração busca a proposta de menor preço imediato.",
+            "A administração não sabe qual a melhor solução técnica e precisa dialogar com o mercado para defini-la.",
+            "Trata-se de venda de bens móveis inservíveis.",
+            "É necessária a contratação de serviços de limpeza.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Diálogo Competitivo:</strong><br>Usado para inovação ou objetos complexos onde o órgão público sabe o problema, mas não conhece a solução. Ele 'conversa' com as empresas antes de licitar.",
+        },
+        {
+          id: 9,
+          category: "Lei 14.133 - Objetivos",
+          q: "São objetivos do processo licitatório, EXCETO:",
+          options: [
+            "Assegurar a seleção da proposta apta a gerar o resultado de contratação mais vantajoso.",
+            "Assegurar tratamento isonômico entre os licitantes.",
+            "Evitar contratações com sobrepreço.",
+            "Incentivar a inovação e o desenvolvimento nacional sustentável.",
+            "Garantir a contratação exclusiva de empresas locais, independente do preço.",
+          ],
+          correct: 4,
+          explanation:
+            "<strong>Isonomia:</strong><br>A licitação busca o desenvolvimento nacional, mas não pode restringir a competição garantindo exclusividade absoluta a locais se isso ferir a isonomia ou a vantagem econômica, salvo margens de preferência específicas previstas em lei.",
+        },
+
+        // --- ADMINISTRAÇÃO PÚBLICA E GERAL ---
+        {
+          id: 10,
+          category: "Adm. Pública - Princípios",
+          q: "O princípio que exige que o administrador público divulgue seus atos oficiais para que tenham eficácia e permitam controle social é o da:",
+          options: [
+            "Impessoalidade.",
+            "Moralidade.",
+            "Eficiência.",
+            "Publicidade.",
+            "Legalidade.",
+          ],
+          correct: 3,
+          explanation:
+            "<strong>Publicidade:</strong><br>Sem publicação (Diário Oficial, Portal da Transparência), o ato administrativo não produz efeitos externos e não pode ser cobrado. É requisito de eficácia.",
+        },
+        {
+          id: 11,
+          category: "Adm. Pública - Organização",
+          q: "As Autarquias (como o INSS e o Detran) integram a Administração:",
+          options: [
+            "Direta.",
+            "Indireta.",
+            "Fundacional Privada.",
+            "Do Terceiro Setor.",
+            "Centralizada.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Administração Indireta:</strong><br>Composta por Autarquias, Fundações Públicas, Empresas Públicas e Sociedades de Economia Mista. Elas têm personalidade jurídica própria.",
+        },
+        {
+          id: 12,
+          category: "Gestão - PDCA",
+          q: "No Ciclo PDCA, a etapa em que se verifica se o que foi executado está de acordo com o planejado é:",
+          options: [
+            "Plan (Planejar).",
+            "Do (Executar).",
+            "Check (Verificar/Checar).",
+            "Act (Agir/Ajustar).",
+            "Control (Controlar).",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>PDCA:</strong><br>• Plan: Define metas.<br>• Do: Executa.<br>• <strong>Check:</strong> Monitora e avalia os resultados.<br>• Act: Corrige as falhas.",
+        },
+        {
+          id: 13,
+          category: "Gestão - SWOT",
+          q: "Na Análise SWOT (FOFA), uma 'Ameaça' é um fator:",
+          options: [
+            "Interno e Positivo.",
+            "Interno e Negativo.",
+            "Externo e Positivo.",
+            "Externo e Negativo.",
+            "Neutro.",
+          ],
+          correct: 3,
+          explanation:
+            "<strong>Matriz SWOT:</strong><br>• Forças/Fraquezas: Ambiente Interno (controlável).<br>• Oportunidades/Ameaças: Ambiente Externo (não controlável, ex: nova lei, crise econômica).",
+        },
+        {
+          id: 14,
+          category: "Atendimento - Qualidade",
+          q: "A capacidade de se colocar no lugar do cidadão/usuário, compreendendo suas necessidades durante o atendimento, é chamada de:",
+          options: [
+            "Apatia.",
+            "Simpatia.",
+            "Empatia.",
+            "Urbanidade.",
+            "Eficiência.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Empatia:</strong><br>É a habilidade chave no atendimento ao público. Urbanidade é tratar com educação/cortesia (dever do servidor), mas empatia envolve compreensão emocional.",
+        },
+
+        // --- REDAÇÃO OFICIAL ---
+        {
+          id: 15,
+          category: "Redação Oficial - Pronomes",
+          q: "Ao redigir um ofício dirigido a um Deputado Estadual, o pronome de tratamento correto no corpo do texto é:",
+          options: [
+            "Vossa Senhoria.",
+            "Vossa Excelência.",
+            "Vossa Magnificência.",
+            "Vossa Santidade.",
+            "Vossa Alteza.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Vossa Excelência:</strong><br>Usado para Chefes de Poder (Legislativo, Executivo, Judiciário) e seus membros (Deputados, Juízes, Ministros, Prefeitos). Vossa Senhoria é para demais autoridades.",
+        },
+        {
+          id: 16,
+          category: "Redação Oficial - Atributos",
+          q: "O atributo da Redação Oficial que exige que o texto não tenha marcas pessoais, impressões subjetivas ou tom emocional é a:",
+          options: [
+            "Clareza.",
+            "Concisão.",
+            "Impessoalidade.",
+            "Formalidade.",
+            "Padronização.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Impessoalidade:</strong><br>O texto fala em nome do Serviço Público, não da pessoa do servidor. Deve ser objetivo, isento de opiniões e voltado ao interesse público.",
+        },
+        {
+          id: 17,
+          category: "Redação Oficial - Fecho",
+          q: "Para autoridades de hierarquia superior ou igual à do remetente (inclusive Presidente da República), o fecho padrão é:",
+          options: [
+            "Atenciosamente,",
+            "Respeitosamente,",
+            "Cordialmente,",
+            "Saudações,",
+            "Com estima,",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Manual de Redação da PR:</strong><br>• <strong>Respeitosamente:</strong> Para autoridade superior.<br>• <strong>Atenciosamente:</strong> Para autoridade de mesma hierarquia ou inferior.",
+        },
+
+        // --- LGPD e LAI ---
+        {
+          id: 18,
+          category: "LAI (12.527/11)",
+          q: "Pela Lei de Acesso à Informação, qualquer cidadão pode pedir informações aos órgãos públicos. O órgão deve responder:",
+          options: [
+            "Imediatamente, se a informação estiver disponível.",
+            "Em até 30 dias, prorrogáveis por mais 30.",
+            "Apenas se o cidadão justificar o motivo do pedido.",
+            "Somente presencialmente.",
+            "Nunca, pois os dados são sigilosos.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Regra da LAI:</strong><br>A regra é o acesso imediato. Se não for possível na hora, o prazo é de 20 dias + 10 de prorrogação. E *não* é necessário justificar o motivo do pedido.",
+        },
+        {
+          id: 19,
+          category: "LGPD (13.709/18)",
+          q: "Segundo a LGPD, dados sobre origem racial, convicção religiosa, opinião política ou saúde são classificados como:",
+          options: [
+            "Dados Pessoais Comuns.",
+            "Dados Anonimizados.",
+            "Dados Sensíveis.",
+            "Dados Públicos.",
+            "Dados Livres.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Dados Sensíveis:</strong><br>São aqueles que podem gerar discriminação. Eles têm proteção rigorosa e regras mais estritas para tratamento.",
+        },
+        {
+          id: 20,
+          category: "Adm. Materiais",
+          q: "A gestão de estoques utiliza a 'Curva ABC' para classificar itens. Os itens da Classe A são:",
+          options: [
+            "Os mais numerosos e baratos.",
+            "Os de menor importância financeira.",
+            "Os de maior valor financeiro e menor quantidade física.",
+            "Aqueles que nunca faltam.",
+            "Os itens obsoletos.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Curva ABC:</strong><br>• Classe A: Alta importância ($$), poucos itens.<br>• Classe C: Baixa importância ($), muitos itens.<br>O foco do gestor deve ser nos itens A.",
+        },
+
+        // --- QUESTÕES EXTRAS DE REFORÇO (FGV STYLE) ---
+        {
+          id: 21,
+          category: "Arquivologia - Tipos",
+          q: "Arquivos que guardam documentos de guarda permanente, com valor histórico e cultural, são chamados de:",
+          options: [
+            "Arquivo Morto.",
+            "Arquivo Técnico.",
+            "Arquivo de Segunda Idade.",
+            "Arquivo Permanente.",
+            "Centro de Memória.",
+          ],
+          correct: 3,
+          explanation:
+            "<strong>Arquivo Permanente:</strong><br>Termo técnico correto. 'Arquivo Morto' é termo pejorativo e errado em arquivologia, pois o documento tem vida (valor secundário/histórico).",
+        },
+        {
+          id: 22,
+          category: "Processo Legislativo",
+          q: "O ato administrativo que materializa a decisão de um órgão colegiado (como a Mesa Diretora ou Comissões) chama-se:",
+          options: [
+            "Decreto.",
+            "Portaria.",
+            "Resolução ou Deliberação.",
+            "Memorando.",
+            "Ofício.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Atos Colegiados:</strong><br>Decisões de conselhos e órgãos coletivos geralmente tomam a forma de Resoluções ou Deliberações. Portaria é ato de autoridade singular.",
+        },
+        {
+          id: 23,
+          category: "Lei 14.133 - Pregão",
+          q: "O Pregão é a modalidade de licitação obrigatória para a aquisição de:",
+          options: [
+            "Obras de grande vulto.",
+            "Bens e serviços comuns.",
+            "Serviços técnicos especializados.",
+            "Alienação de imóveis.",
+            "Parcerias Público-Privadas.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Bens Comuns:</strong><br>Aqueles cujos padrões de desempenho e qualidade podem ser objetivamente definidos no edital, por meio de especificações usuais de mercado (canetas, limpeza, computadores padrão).",
+        },
+        {
+          id: 24,
+          category: "Ética no Serviço Público",
+          q: "O servidor público deve pautar sua conduta pelo princípio da moralidade. Isso significa que:",
+          options: [
+            "Deve apenas cumprir a lei friamente.",
+            "Deve distinguir entre o bem e o mal, e entre o honesto e o desonesto.",
+            "Pode aceitar pequenos presentes de fornecedores.",
+            "Deve priorizar os interesses de seus superiores.",
+            "Pode usar o cargo para benefício próprio se não for ilegal.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Moralidade Administrativa:</strong><br>Não basta ser legal, tem que ser honesto e ético. O servidor deve buscar o bem comum e a probidade.",
+        },
+        {
+          id: 25,
+          category: "Poderes Administrativos",
+          q: "O poder que a Administração tem de aplicar sanções (punições) aos seus servidores e a particulares contratados é o:",
+          options: [
+            "Poder de Polícia.",
+            "Poder Hierárquico.",
+            "Poder Disciplinar.",
+            "Poder Regulamentar.",
+            "Poder Vinculado.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Poder Disciplinar:</strong><br>Puno quem tem vínculo com a administração (servidor ou empresa contratada). Poder de Polícia pune o particular em geral (multa de trânsito, vigilância sanitária).",
+        },
+        {
+          id: 26,
+          category: "Improbidade (Lei 8.429)",
+          q: "Constitui ato de improbidade administrativa que causa Lesão ao Erário (Prejuízo aos cofres públicos), EXCETO:",
+          options: [
+            "Facilitar a incorporação de verba pública ao patrimônio particular.",
+            "Doar bens públicos sem formalidade legal.",
+            "Frustrar a licitude de processo licitatório.",
+            "Deixar de prestar contas quando obrigado a fazê-lo.",
+            "Receber vantagem econômica para tolerar a prática de jogo de azar (Enriquecimento Ilícito).",
+          ],
+          correct: 4,
+          explanation:
+            "<strong>Tipos de Improbidade:</strong><br>Receber propina/vantagem é <strong>Enriquecimento Ilícito</strong> (Art. 9º), o ato mais grave. Os outros listados causam prejuízo financeiro direto ao Estado (Art. 10).",
+        },
+        {
+          id: 27,
+          category: "Gestão - Eficiência",
+          q: "Na administração pública gerencial, o foco principal deixa de ser os processos burocráticos e passa a ser:",
+          options: [
+            "O controle de ponto.",
+            "Os resultados e a satisfação do cidadão.",
+            "A hierarquia rígida.",
+            "O aumento de impostos.",
+            "A papelada.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Administração Gerencial:</strong><br>Foca em eficiência, eficácia e efetividade. O cidadão é visto como cliente/usuário e o objetivo é entregar resultados concretos.",
+        },
+        {
+          id: 28,
+          category: "Arquivologia - Classificação",
+          q: "Quanto à natureza do assunto, os documentos podem ser classificados como Ostensivos ou:",
+          options: [
+            "Secretos.",
+            "Sigilosos.",
+            "Particulares.",
+            "Públicos.",
+            "Oficiais.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Sigilo:</strong><br>Ostensivos são abertos a todos. Sigilosos têm restrição de acesso (Reservado, Secreto, Ultrassecreto) para proteger a segurança da sociedade e do Estado.",
+        },
+        {
+          id: 29,
+          category: "Informática na Adm.",
+          q: "O sistema oficial do Governo Federal para gestão de convênios e contratos de repasse chama-se:",
+          options: [
+            "SIAFI.",
+            "Transferegov.br (antigo SICONV).",
+            "SIAPE.",
+            "Comerprasnet.",
+            "SEI.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Transferegov:</strong><br>É a plataforma obrigatória para operacionalizar transferências voluntárias de recursos da União para Estados/Municípios e ONGs.",
+        },
+        {
+          id: 30,
+          category: "Redação - Pronomes",
+          q: "A concordância com pronomes de tratamento deve ser feita sempre na:",
+          options: [
+            "2ª pessoa (Tu/Vós).",
+            "3ª pessoa (Ele/Ela/Você).",
+            "1ª pessoa (Eu/Nós).",
+            "Mista.",
+            "Nenhuma das anteriores.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Regra de Ouro:</strong><br>Embora 'Vossa Excelência' se refira à pessoa com quem se fala (2ª pessoa do discurso), o verbo e os pronomes possessivos ficam na <strong>3ª pessoa</strong>. Ex: 'Vossa Excelência <strong>aprovou</strong> <strong>seu</strong> projeto'.",
+        },
+        {
+          id: 31,
+          category: "Arquivologia - Gênero",
+          q: "Mapas, plantas e projetos de engenharia são classificados no gênero documental:",
+          options: [
+            "Textual.",
+            "Iconográfico.",
+            "Cartográfico.",
+            "Micrográfico.",
+            "Sonoro.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Gêneros:</strong><br>• Cartográfico: Mapas e plantas.<br>• Iconográfico: Imagens, fotos.<br>• Textual: Escritos (ofícios, relatórios).",
+        },
+        {
+          id: 32,
+          category: "Direito Adm. - Atos",
+          q: "A revogação de um ato administrativo ocorre por motivos de:",
+          options: [
+            "Ilegalidade.",
+            "Conveniência e Oportunidade.",
+            "Vício de forma.",
+            "Incompetência.",
+            "Desvio de finalidade.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Anulação vs Revogação:</strong><br>• Anula-se ato ILEGAL.<br>• Revoga-se ato LEGAL, mas que deixou de ser conveniente ou oportuno para a administração (Mérito Administrativo).",
+        },
+        {
+          id: 33,
+          category: "Licitação - Contratos",
+          q: "A duração dos contratos administrativos de serviços contínuos (ex: limpeza, vigilância) pode ser prorrogada por até:",
+          options: [
+            "12 meses.",
+            "48 meses.",
+            "5 anos (60 meses), podendo chegar a 10 anos na nova lei.",
+            "Indeterminadamente.",
+            "24 meses.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Nova Lei 14.133:</strong><br>Permite contratos de serviços contínuos com vigência inicial de até 5 anos, prorrogáveis sucessivamente até o limite decenal (10 anos).",
+        },
+        {
+          id: 34,
+          category: "Constituição - Art. 37",
+          q: "O prazo de validade do concurso público será de até ____, prorrogável uma vez, por igual período.",
+          options: ["1 ano.", "2 anos.", "3 anos.", "4 anos.", "5 anos."],
+          correct: 1,
+          explanation:
+            "<strong>Validade do Concurso:</strong><br>Texto constitucional (Art. 37, III). 'Até dois anos'. Pode ser de 1 ano, prorrogável por mais 1. O máximo total é 4 anos.",
+        },
+        {
+          id: 35,
+          category: "Gestão - Organograma",
+          q: "A representação gráfica da estrutura organizacional de uma empresa ou órgão público chama-se:",
+          options: [
+            "Fluxograma.",
+            "Histograma.",
+            "Organograma.",
+            "Cronograma.",
+            "Diagrama de Pareto.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Ferramentas Gráficas:</strong><br>• Organograma: Estrutura hierárquica.<br>• Fluxograma: Processos e etapas.<br>• Cronograma: Tempo e prazos.",
+        },
+        {
+          id: 36,
+          category: "Qualidade - 5S",
+          q: "No programa de qualidade 5S, o senso de 'Seiri' refere-se a:",
+          options: [
+            "Limpeza.",
+            "Utilização/Descarte (separar o útil do inútil).",
+            "Ordenação.",
+            "Saúde/Higiene.",
+            "Autodisciplina.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Os 5 Sensos:</strong><br>1. Seiri (Utilização).<br>2. Seiton (Ordenação).<br>3. Seiso (Limpeza).<br>4. Seiketsu (Saúde/Padronização).<br>5. Shitsuke (Disciplina).",
+        },
+        {
+          id: 37,
+          category: "Adm. Materiais",
+          q: "O documento que formaliza a entrada de material no almoxarifado e atesta que a entrega confere com o pedido é a:",
+          options: [
+            "Nota de Empenho.",
+            "Requisição de Material.",
+            "Nota de Recebimento/Atesto.",
+            "Ficha de Prateleira.",
+            "Inventário Físico.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Recebimento:</strong><br>O almoxarife confere a Nota Fiscal com o Empenho e assina o Atesto (Aceite). Isso libera o pagamento ao fornecedor.",
+        },
+        {
+          id: 38,
+          category: "Serviço Público",
+          q: "O princípio da continuidade do serviço público impede que:",
+          options: [
+            "O serviço sofra interrupções injustificadas, prejudicando a população.",
+            "O serviço seja cobrado.",
+            "O serviço seja delegado a particulares.",
+            "O serviço seja modernizado.",
+            "O serviço tenha lucro.",
+          ],
+          correct: 0,
+          explanation:
+            "<strong>Não pode parar:</strong><br>Serviços essenciais (água, luz, segurança) não podem parar. A greve no serviço público sofre limitações por causa desse princípio.",
+        },
+        {
+          id: 39,
+          category: "Poder Legislativo",
+          q: "A função típica do Poder Legislativo (ALEAM) é:",
+          options: [
+            "Administrar o Estado.",
+            "Julgar crimes comuns.",
+            "Legislar e Fiscalizar o Executivo.",
+            "Executar obras públicas.",
+            "Nomear juízes.",
+          ],
+          correct: 2,
+          explanation:
+            "<strong>Funções Típicas:</strong><br>1. Legislar (criar leis).<br>2. Fiscalizar (controlar o dinheiro e os atos do Governador/Prefeito). Administrar é função atípica.",
+        },
+        {
+          id: 40,
+          category: "Concurso Público",
+          q: "A investidura em cargo de comissão depende de:",
+          options: [
+            "Aprovação prévia em concurso público.",
+            "Livre nomeação e exoneração pela autoridade competente.",
+            "Eleição direta.",
+            "Processo seletivo simplificado.",
+            "Tempo de serviço.",
+          ],
+          correct: 1,
+          explanation:
+            "<strong>Cargo de Confiança:</strong><br>Cargos em comissão (ad nutum) são de livre escolha do chefe (demissíveis a qualquer momento). Concurso é para cargo efetivo.",
+        },
+      ];
+
+      // === SISTEMA DO QUIZ ===
+      let currentIndex = 0;
+      let score = 0;
+      let attempts = 0;
+
+      const ui = {
+        card: document.getElementById("quiz-card"),
+        resultScreen: document.getElementById("result-screen"),
+        qCategory: document.getElementById("q-category"),
+        qCount: document.getElementById("q-count"),
+        qText: document.getElementById("q-text"),
+        optsContainer: document.getElementById("options-container"),
+        progressBar: document.getElementById("progress-bar"),
+        scoreDisplay: document.getElementById("score-display"),
+        finalScore: document.getElementById("final-score-big"),
+        modal: document.getElementById("feedback-modal"),
+        modalHeader: document.getElementById("modal-header"),
+        modalIcon: document.getElementById("modal-icon"),
+        modalTitle: document.getElementById("modal-title"),
+        modalMsg: document.getElementById("modal-message"),
+        btnRetry: document.getElementById("btn-retry"),
+        btnNext: document.getElementById("btn-next"),
+      };
+
+      function init() {
+        currentIndex = 0;
+        score = 0;
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const q = questions[currentIndex];
+        attempts = 0;
+        ui.qCategory.innerText = q.category;
+        ui.qCount.innerText = `${currentIndex + 1}/${questions.length}`;
+        ui.qText.innerHTML = q.q;
+        ui.scoreDisplay.innerText = `Pontos: ${score}`;
+
+        const pct = (currentIndex / questions.length) * 100;
+        ui.progressBar.style.width = `${pct}%`;
+
+        ui.optsContainer.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:bg-white hover:border-rose-300 hover:shadow-md transition-all duration-200 flex items-center group no-select`;
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-full bg-white text-slate-500 font-bold flex items-center justify-center text-xs mr-4 border border-slate-200 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 transition-colors">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-medium text-slate-700 group-hover:text-slate-900">${opt}</span>
+          `;
+          btn.onclick = () => handleAnswer(idx);
+          ui.optsContainer.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(selectedIndex) {
+        const q = questions[currentIndex];
+        const isCorrect = selectedIndex === q.correct;
+
+        ui.modal.classList.remove("hidden");
+
+        if (isCorrect) {
+          if (attempts === 0) score += 2.5; // Peso ajustado para totalizar 100 com 40 questões
+          configureModal("success");
+          ui.modalTitle.innerText = "Resposta Exata!";
+          ui.modalMsg.innerHTML = `<span class="text-emerald-600 font-bold">Conceito FGV:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.add("hidden");
+        } else {
+          attempts++;
+          configureModal("error");
+          ui.modalTitle.innerText = "Resposta Incorreta";
+          ui.modalMsg.innerHTML = `<span class="text-rose-600 font-bold">Correção:</span><br><br>${q.explanation}`;
+          ui.btnRetry.classList.remove("hidden");
+        }
+      }
+
+      function configureModal(type) {
+        if (type === "success") {
+          ui.modalHeader.className = "p-6 text-center bg-emerald-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-check text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg transition";
+        } else {
+          ui.modalHeader.className = "p-6 text-center bg-rose-500";
+          ui.modalIcon.innerHTML =
+            '<i class="fa-solid fa-xmark text-white"></i>';
+          ui.btnNext.className =
+            "w-full py-3.5 px-4 rounded-xl font-bold bg-slate-800 text-white hover:bg-slate-900 shadow-lg transition";
+        }
+        ui.btnNext.focus();
+      }
+
+      ui.btnRetry.onclick = () => ui.modal.classList.add("hidden");
+
+      ui.btnNext.onclick = () => {
+        ui.modal.classList.add("hidden");
+        currentIndex++;
+        if (currentIndex < questions.length) loadQuestion();
+        else showResults();
+      };
+
+      function showResults() {
+        ui.card.classList.add("hidden");
+        ui.resultScreen.classList.remove("hidden");
+        ui.finalScore.innerText = score;
+        ui.scoreDisplay.innerText = `Final: ${score}`;
+      }
+
+      init();
+    </script>
+  </body>
+</html>
